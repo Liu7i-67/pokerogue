@@ -49,8 +49,8 @@ import CandyBar from "./ui/candy-bar";
 import { Variant, variantData } from "./data/variant";
 import { Localizable } from "./plugins/i18n";
 import * as Overrides from "./overrides";
-import {InputsController} from "./inputs-controller";
-import {UiInputs} from "./ui-inputs";
+import { InputsController } from "./inputs-controller";
+import { UiInputs } from "./ui-inputs";
 import { NewArenaEvent } from "./events/battle-scene";
 import ArenaFlyout from "./ui/arena-flyout";
 import { EaseType } from "#enums/ease-type";
@@ -66,11 +66,12 @@ import { Species } from "#enums/species";
 import { UiTheme } from "#enums/ui-theme";
 import { TimedEventManager } from "#app/timed-event-manager.js";
 
-export const bypassLogin = import.meta.env.VITE_BYPASS_LOGIN === "1";
+export const bypassLogin = true;
+// export const bypassLogin = import.meta.env.VITE_BYPASS_LOGIN === "1";
 
 const DEBUG_RNG = false;
 
-const OPP_IVS_OVERRIDE_VALIDATED : integer[] = (
+const OPP_IVS_OVERRIDE_VALIDATED: integer[] = (
   Array.isArray(Overrides.OPP_IVS_OVERRIDE) ?
     Overrides.OPP_IVS_OVERRIDE :
     new Array(6).fill(Overrides.OPP_IVS_OVERRIDE)
@@ -82,18 +83,18 @@ const expSpriteKeys: string[] = [];
 
 export let starterColors: StarterColors;
 interface StarterColors {
-    [key: string]: [string, string]
+  [key: string]: [string, string]
 }
 
 export interface PokeballCounts {
-    [pb: string]: integer;
+  [pb: string]: integer;
 }
 
 export type AnySound = Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.NoAudioSound;
 
 export interface InfoToggle {
-    toggleInfo(force?: boolean): void;
-    isActive(): boolean;
+  toggleInfo(force?: boolean): void;
+  isActive(): boolean;
 }
 
 export default class BattleScene extends SceneBase {
@@ -280,7 +281,7 @@ export default class BattleScene extends SceneBase {
     if (variant) {
       atlasPath = atlasPath.replace("variant/", "");
     }
-    this.load.atlas(key, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.png`,  `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.json`);
+    this.load.atlas(key, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.png`, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.json`);
   }
 
   async preload() {
@@ -288,8 +289,8 @@ export default class BattleScene extends SceneBase {
       const scene = this;
       const originalRealInRange = Phaser.Math.RND.realInRange;
       Phaser.Math.RND.realInRange = function (min: number, max: number): number {
-        const ret = originalRealInRange.apply(this, [ min, max ]);
-        const args = [ "RNG", ++scene.rngCounter, ret / (max - min), `min: ${min} / max: ${max}` ];
+        const ret = originalRealInRange.apply(this, [min, max]);
+        const args = ["RNG", ++scene.rngCounter, ret / (max - min), `min: ${min} / max: ${max}`];
         args.push(`seed: ${scene.rngSeedOverride || scene.waveSeed || scene.seed}`);
         if (scene.rngOffset) {
           args.push(`offset: ${scene.rngOffset}`);
@@ -333,7 +334,7 @@ export default class BattleScene extends SceneBase {
     this.arenaBg = this.add.sprite(0, 0, "plains_bg");
     this.arenaBgTransition = this.add.sprite(0, 0, "plains_bg");
 
-    [ this.arenaBgTransition, this.arenaBg ].forEach(a => {
+    [this.arenaBgTransition, this.arenaBg].forEach(a => {
       a.setPipeline(this.fieldSpritePipeline);
       a.setScale(6);
       a.setOrigin(0);
@@ -490,7 +491,7 @@ export default class BattleScene extends SceneBase {
     this.arenaPlayerTransition.setVisible(false);
     this.arenaNextEnemy.setVisible(false);
 
-    [ this.arenaPlayer, this.arenaPlayerTransition, this.arenaEnemy, this.arenaNextEnemy ].forEach(a => {
+    [this.arenaPlayer, this.arenaPlayerTransition, this.arenaEnemy, this.arenaNextEnemy].forEach(a => {
       if (a instanceof Phaser.GameObjects.Sprite) {
         a.setOrigin(0, 0);
       }
@@ -531,12 +532,12 @@ export default class BattleScene extends SceneBase {
 
     ui.setup();
 
-    const defaultMoves = [ Moves.TACKLE, Moves.TAIL_WHIP, Moves.FOCUS_ENERGY, Moves.STRUGGLE ];
+    const defaultMoves = [Moves.TACKLE, Moves.TAIL_WHIP, Moves.FOCUS_ENERGY, Moves.STRUGGLE];
 
     Promise.all([
       Promise.all(loadPokemonAssets),
       initCommonAnims(this).then(() => loadCommonAnimAssets(this, true)),
-      Promise.all([ Moves.TACKLE, Moves.TAIL_WHIP, Moves.FOCUS_ENERGY, Moves.STRUGGLE ].map(m => initMoveAnim(this, m))).then(() => loadMoveAnimAssets(this, defaultMoves, true)),
+      Promise.all([Moves.TACKLE, Moves.TAIL_WHIP, Moves.FOCUS_ENERGY, Moves.STRUGGLE].map(m => initMoveAnim(this, m))).then(() => loadMoveAnimAssets(this, defaultMoves, true)),
       this.initStarterColors()
     ]).then(() => {
       this.pushPhase(new LoginPhase(this));
@@ -606,7 +607,7 @@ export default class BattleScene extends SceneBase {
                 variantTree = variantTree[k];
                 expTree = expTree[k];
               } else if (variantTree.hasOwnProperty(k) && expTree.hasOwnProperty(k)) {
-                if ([ "back", "female" ].includes(k)) {
+                if (["back", "female"].includes(k)) {
                   traverseVariantData(keys.concat(k));
                 } else {
                   variantTree[k] = expTree[k];
@@ -614,7 +615,7 @@ export default class BattleScene extends SceneBase {
               }
             });
           };
-          Object.keys(expVariantData).forEach(ek => traverseVariantData([ ek ]));
+          Object.keys(expVariantData).forEach(ek => traverseVariantData([ek]));
         }
         Promise.resolve();
       });
@@ -899,7 +900,7 @@ export default class BattleScene extends SceneBase {
 
     this.lockModifierTiers = false;
 
-    this.pokeballCounts = Object.fromEntries(Utils.getEnumValues(PokeballType).filter(p => p <= PokeballType.MASTER_BALL).map(t => [ t, 0 ]));
+    this.pokeballCounts = Object.fromEntries(Utils.getEnumValues(PokeballType).filter(p => p <= PokeballType.MASTER_BALL).map(t => [t, 0]));
     this.pokeballCounts[PokeballType.POKEBALL] += 5;
     if (Overrides.POKEBALL_OVERRIDE.active) {
       this.pokeballCounts = Overrides.POKEBALL_OVERRIDE.pokeballs;
@@ -929,7 +930,7 @@ export default class BattleScene extends SceneBase {
     this.updateScoreText();
     this.scoreText.setVisible(false);
 
-    [ this.luckLabelText, this.luckText ].map(t => t.setVisible(false));
+    [this.luckLabelText, this.luckText].map(t => t.setVisible(false));
 
     this.newArena(Overrides.STARTING_BIOME_OVERRIDE || Biome.TOWN);
 
@@ -938,7 +939,7 @@ export default class BattleScene extends SceneBase {
     this.arenaBgTransition.setPosition(0, 0);
     this.arenaPlayer.setPosition(300, 0);
     this.arenaPlayerTransition.setPosition(0, 0);
-    [ this.arenaEnemy, this.arenaNextEnemy ].forEach(a => a.setPosition(-280, 0));
+    [this.arenaEnemy, this.arenaNextEnemy].forEach(a => a.setPosition(-280, 0));
     this.arenaNextEnemy.setVisible(false);
 
     this.arena.init();
@@ -967,7 +968,7 @@ export default class BattleScene extends SceneBase {
 
       this.fadeOutBgm(250, false);
       this.tweens.add({
-        targets: [ this.uiContainer ],
+        targets: [this.uiContainer],
         alpha: 0,
         duration: 250,
         ease: "Sine.easeInOut",
@@ -1179,62 +1180,62 @@ export default class BattleScene extends SceneBase {
     }
 
     switch (species.speciesId) {
-    case Species.UNOWN:
-    case Species.SHELLOS:
-    case Species.GASTRODON:
-    case Species.BASCULIN:
-    case Species.DEERLING:
-    case Species.SAWSBUCK:
-    case Species.FROAKIE:
-    case Species.FROGADIER:
-    case Species.SCATTERBUG:
-    case Species.SPEWPA:
-    case Species.VIVILLON:
-    case Species.FLABEBE:
-    case Species.FLOETTE:
-    case Species.FLORGES:
-    case Species.FURFROU:
-    case Species.PUMPKABOO:
-    case Species.GOURGEIST:
-    case Species.ORICORIO:
-    case Species.MAGEARNA:
-    case Species.ZARUDE:
-    case Species.SQUAWKABILLY:
-    case Species.TATSUGIRI:
-    case Species.PALDEA_TAUROS:
-      return Utils.randSeedInt(species.forms.length);
-    case Species.PIKACHU:
-      return Utils.randSeedInt(8);
-    case Species.EEVEE:
-      return Utils.randSeedInt(2);
-    case Species.GRENINJA:
-      return Utils.randSeedInt(2);
-    case Species.ZYGARDE:
-      return Utils.randSeedInt(3);
-    case Species.MINIOR:
-      return Utils.randSeedInt(6);
-    case Species.ALCREMIE:
-      return Utils.randSeedInt(9);
-    case Species.MEOWSTIC:
-    case Species.INDEEDEE:
-    case Species.BASCULEGION:
-    case Species.OINKOLOGNE:
-      return gender === Gender.FEMALE ? 1 : 0;
-    case Species.TOXTRICITY:
-      const lowkeyNatures = [ Nature.LONELY, Nature.BOLD, Nature.RELAXED, Nature.TIMID, Nature.SERIOUS, Nature.MODEST, Nature.MILD, Nature.QUIET, Nature.BASHFUL, Nature.CALM, Nature.GENTLE, Nature.CAREFUL ];
-      if (nature !== undefined && lowkeyNatures.indexOf(nature) > -1) {
-        return 1;
-      }
-      return 0;
+      case Species.UNOWN:
+      case Species.SHELLOS:
+      case Species.GASTRODON:
+      case Species.BASCULIN:
+      case Species.DEERLING:
+      case Species.SAWSBUCK:
+      case Species.FROAKIE:
+      case Species.FROGADIER:
+      case Species.SCATTERBUG:
+      case Species.SPEWPA:
+      case Species.VIVILLON:
+      case Species.FLABEBE:
+      case Species.FLOETTE:
+      case Species.FLORGES:
+      case Species.FURFROU:
+      case Species.PUMPKABOO:
+      case Species.GOURGEIST:
+      case Species.ORICORIO:
+      case Species.MAGEARNA:
+      case Species.ZARUDE:
+      case Species.SQUAWKABILLY:
+      case Species.TATSUGIRI:
+      case Species.PALDEA_TAUROS:
+        return Utils.randSeedInt(species.forms.length);
+      case Species.PIKACHU:
+        return Utils.randSeedInt(8);
+      case Species.EEVEE:
+        return Utils.randSeedInt(2);
+      case Species.GRENINJA:
+        return Utils.randSeedInt(2);
+      case Species.ZYGARDE:
+        return Utils.randSeedInt(3);
+      case Species.MINIOR:
+        return Utils.randSeedInt(6);
+      case Species.ALCREMIE:
+        return Utils.randSeedInt(9);
+      case Species.MEOWSTIC:
+      case Species.INDEEDEE:
+      case Species.BASCULEGION:
+      case Species.OINKOLOGNE:
+        return gender === Gender.FEMALE ? 1 : 0;
+      case Species.TOXTRICITY:
+        const lowkeyNatures = [Nature.LONELY, Nature.BOLD, Nature.RELAXED, Nature.TIMID, Nature.SERIOUS, Nature.MODEST, Nature.MILD, Nature.QUIET, Nature.BASHFUL, Nature.CALM, Nature.GENTLE, Nature.CAREFUL];
+        if (nature !== undefined && lowkeyNatures.indexOf(nature) > -1) {
+          return 1;
+        }
+        return 0;
     }
 
     if (ignoreArena) {
       switch (species.speciesId) {
-      case Species.BURMY:
-      case Species.WORMADAM:
-      case Species.ROTOM:
-      case Species.LYCANROC:
-        return Utils.randSeedInt(species.forms.length);
+        case Species.BURMY:
+        case Species.WORMADAM:
+        case Species.ROTOM:
+        case Species.LYCANROC:
+          return Utils.randSeedInt(species.forms.length);
       }
       return 0;
     }
@@ -1319,7 +1320,7 @@ export default class BattleScene extends SceneBase {
   resetSeed(waveIndex?: integer): void {
     const wave = waveIndex || this.currentBattle?.waveIndex || 0;
     this.waveSeed = Utils.shiftCharCodes(this.seed, wave);
-    Phaser.Math.RND.sow([ this.waveSeed ]);
+    Phaser.Math.RND.sow([this.waveSeed]);
     console.log("Wave Seed:", this.waveSeed, wave);
     this.rngCounter = 0;
   }
@@ -1332,7 +1333,7 @@ export default class BattleScene extends SceneBase {
     const tempRngOffset = this.rngOffset;
     const tempRngSeedOverride = this.rngSeedOverride;
     const state = Phaser.Math.RND.state();
-    Phaser.Math.RND.sow([ Utils.shiftCharCodes(seedOverride || this.seed, offset) ]);
+    Phaser.Math.RND.sow([Utils.shiftCharCodes(seedOverride || this.seed, offset)]);
     this.rngCounter = 0;
     this.rngOffset = offset;
     this.rngSeedOverride = seedOverride || "";
@@ -1360,7 +1361,7 @@ export default class BattleScene extends SceneBase {
   }
 
   initPokemonSprite(sprite: Phaser.GameObjects.Sprite, pokemon?: Pokemon, hasShadow: boolean = false, ignoreOverride: boolean = false): Phaser.GameObjects.Sprite {
-    sprite.setPipeline(this.spritePipeline, { tone: [ 0.0, 0.0, 0.0, 0.0 ], hasShadow: hasShadow, ignoreOverride: ignoreOverride, teraColor: pokemon ? getTypeRgb(pokemon.getTeraType()) : undefined });
+    sprite.setPipeline(this.spritePipeline, { tone: [0.0, 0.0, 0.0, 0.0], hasShadow: hasShadow, ignoreOverride: ignoreOverride, teraColor: pokemon ? getTypeRgb(pokemon.getTeraType()) : undefined });
     this.spriteSparkleHandler.add(sprite);
     return sprite;
   }
@@ -1407,7 +1408,7 @@ export default class BattleScene extends SceneBase {
   updateBiomeWaveText(): void {
     const isBoss = !(this.currentBattle.waveIndex % 10);
     const biomeString: string = getBiomeName(this.arena.biomeType);
-    this.biomeWaveText.setText( biomeString + " - " + this.currentBattle.waveIndex.toString());
+    this.biomeWaveText.setText(biomeString + " - " + this.currentBattle.waveIndex.toString());
     this.biomeWaveText.setColor(!isBoss ? "#ffffff" : "#f89890");
     this.biomeWaveText.setShadowColor(!isBoss ? "#636363" : "#984038");
     this.biomeWaveText.setVisible(true);
@@ -1447,7 +1448,7 @@ export default class BattleScene extends SceneBase {
   }
 
   updateAndShowText(duration: integer): void {
-    const labels = [ this.luckLabelText, this.luckText ];
+    const labels = [this.luckLabelText, this.luckText];
     labels.forEach(t => t.setAlpha(0));
     const luckValue = getPartyLuckValue(this.getParty());
     this.luckText.setText(getLuckString(luckValue));
@@ -1471,7 +1472,7 @@ export default class BattleScene extends SceneBase {
     if (this.reroll) {
       return;
     }
-    const labels = [ this.luckLabelText, this.luckText ];
+    const labels = [this.luckLabelText, this.luckText];
     this.tweens.add({
       targets: labels,
       duration: duration,
@@ -1490,7 +1491,7 @@ export default class BattleScene extends SceneBase {
     );
     this.moneyText.setY(this.biomeWaveText.y + 10);
     this.scoreText.setY(this.moneyText.y + 10);
-    [ this.luckLabelText, this.luckText ].map(l => l.setY((this.scoreText.visible ? this.scoreText : this.moneyText).y + 10));
+    [this.luckLabelText, this.luckText].map(l => l.setY((this.scoreText.visible ? this.scoreText : this.moneyText).y + 10));
     const offsetY = (this.scoreText.visible ? this.scoreText : this.moneyText).y + 15;
     this.partyExpBar.setY(offsetY);
     this.candyBar.setY(offsetY + 15);
@@ -1527,7 +1528,7 @@ export default class BattleScene extends SceneBase {
 
   randomSpecies(waveIndex: integer, level: integer, fromArenaPool?: boolean, speciesFilter?: PokemonSpeciesFilter, filterAllEvolutions?: boolean): PokemonSpecies {
     if (fromArenaPool) {
-      return this.arena.randomSpecies(waveIndex, level,null , getPartyLuckValue(this.party));
+      return this.arena.randomSpecies(waveIndex, level, null, getPartyLuckValue(this.party));
     }
     const filteredSpecies = speciesFilter ? [...new Set(allSpecies.filter(s => s.isCatchable()).filter(speciesFilter).map(s => {
       if (!filterAllEvolutions) {
@@ -1706,148 +1707,148 @@ export default class BattleScene extends SceneBase {
 
   getBgmLoopPoint(bgmName: string): number {
     switch (bgmName) {
-    case "battle_kanto_champion": //B2W2 Kanto Champion Battle
-      return 13.950;
-    case "battle_johto_champion": //B2W2 Johto Champion Battle
-      return 23.498;
-    case "battle_hoenn_champion": //B2W2 Hoenn Champion Battle
-      return 11.328;
-    case "battle_sinnoh_champion": //B2W2 Sinnoh Champion Battle
-      return 12.235;
-    case "battle_champion_alder": //BW Unova Champion Battle
-      return 27.653;
-    case "battle_champion_iris": //B2W2 Unova Champion Battle
-      return 10.145;
-    case "battle_kalos_champion": //XY Kalos Champion Battle
-      return 10.380;
-    case "battle_alola_champion": //USUM Alola Champion Battle
-      return 13.025;
-    case "battle_galar_champion": //SWSH Galar Champion Battle
-      return 61.635;
-    case "battle_champion_geeta": //SV Champion Geeta Battle
-      return 37.447;
-    case "battle_champion_nemona": //SV Champion Nemona Battle
-      return 14.914;
-    case "battle_champion_kieran": //SV Champion Kieran Battle
-      return 7.206;
-    case "battle_hoenn_elite": //ORAS Elite Four Battle
-      return 11.350;
-    case "battle_unova_elite": //BW Elite Four Battle
-      return 17.730;
-    case "battle_kalos_elite": //XY Elite Four Battle
-      return 12.340;
-    case "battle_alola_elite": //SM Elite Four Battle
-      return 19.212;
-    case "battle_galar_elite": //SWSH League Tournament Battle
-      return 164.069;
-    case "battle_paldea_elite": //SV Elite Four Battle
-      return 12.770;
-    case "battle_bb_elite": //SV BB League Elite Four Battle
-      return 19.434;
-    case "battle_final_encounter": //PMD RTDX Rayquaza's Domain
-      return 19.159;
-    case "battle_final": //BW Ghetsis Battle
-      return 16.453;
-    case "battle_kanto_gym": //B2W2 Kanto Gym Battle
-      return 13.857;
-    case "battle_johto_gym": //B2W2 Johto Gym Battle
-      return 12.911;
-    case "battle_hoenn_gym": //B2W2 Hoenn Gym Battle
-      return 12.379;
-    case "battle_sinnoh_gym": //B2W2 Sinnoh Gym Battle
-      return 13.122;
-    case "battle_unova_gym": //BW Unova Gym Battle
-      return 19.145;
-    case "battle_kalos_gym": //XY Kalos Gym Battle
-      return 44.810;
-    case "battle_galar_gym": //SWSH Galar Gym Battle
-      return 171.262;
-    case "battle_paldea_gym": //SV Paldea Gym Battle
-      return 127.489;
-    case "battle_legendary_kanto": //XY Kanto Legendary Battle
-      return 32.966;
-    case "battle_legendary_raikou": //HGSS Raikou Battle
-      return 12.632;
-    case "battle_legendary_entei": //HGSS Entei Battle
-      return 2.905;
-    case "battle_legendary_suicune": //HGSS Suicune Battle
-      return 12.636;
-    case "battle_legendary_lugia": //HGSS Lugia Battle
-      return 19.770;
-    case "battle_legendary_ho_oh": //HGSS Ho-oh Battle
-      return 17.668;
-    case "battle_legendary_regis_g5": //B2W2 Legendary Titan Battle
-      return 49.500;
-    case "battle_legendary_regis_g6": //ORAS Legendary Titan Battle
-      return 21.130;
-    case "battle_legendary_gro_kyo": //ORAS Groudon & Kyogre Battle
-      return 10.547;
-    case "battle_legendary_rayquaza": //ORAS Rayquaza Battle
-      return 10.495;
-    case "battle_legendary_deoxys": //ORAS Deoxys Battle
-      return 13.333;
-    case "battle_legendary_lake_trio": //ORAS Lake Guardians Battle
-      return 16.887;
-    case "battle_legendary_sinnoh": //ORAS Sinnoh Legendary Battle
-      return 22.770;
-    case "battle_legendary_dia_pal": //ORAS Dialga & Palkia Battle
-      return 16.009;
-    case "battle_legendary_giratina": //ORAS Giratina Battle
-      return 10.451;
-    case "battle_legendary_arceus": //HGSS Arceus Battle
-      return 9.595;
-    case "battle_legendary_unova": //BW Unova Legendary Battle
-      return 13.855;
-    case "battle_legendary_kyurem": //BW Kyurem Battle
-      return 18.314;
-    case "battle_legendary_res_zek": //BW Reshiram & Zekrom Battle
-      return 18.329;
-    case "battle_legendary_xern_yvel": //XY Xerneas & Yveltal Battle
-      return 26.468;
-    case "battle_legendary_tapu": //SM Tapu Battle
-      return 0.000;
-    case "battle_legendary_sol_lun": //SM Solgaleo & Lunala Battle
-      return 6.525;
-    case "battle_legendary_ub": //SM Ultra Beast Battle
-      return 9.818;
-    case "battle_legendary_dusk_dawn": //USUM Dusk Mane & Dawn Wings Necrozma Battle
-      return 5.211;
-    case "battle_legendary_ultra_nec": //USUM Ultra Necrozma Battle
-      return 10.344;
-    case "battle_legendary_zac_zam": //SWSH Zacian & Zamazenta Battle
-      return 11.424;
-    case "battle_legendary_glas_spec": //SWSH Glastrier & Spectrier Battle
-      return 12.503;
-    case "battle_legendary_calyrex": //SWSH Calyrex Battle
-      return 50.641;
-    case "battle_legendary_birds_galar": //SWSH Galarian Legendary Birds Battle
-      return 0.175;
-    case "battle_legendary_ruinous": //SV Treasures of Ruin Battle
-      return 6.333;
-    case "battle_legendary_loyal_three": //SV Loyal Three Battle
-      return 6.500;
-    case "battle_legendary_ogerpon": //SV Ogerpon Battle
-      return 14.335;
-    case "battle_legendary_terapagos": //SV Terapagos Battle
-      return 24.377;
-    case "battle_legendary_pecharunt": //SV Pecharunt Battle
-      return 6.508;
-    case "battle_rival": //BW Rival Battle
-      return 13.689;
-    case "battle_rival_2": //BW N Battle
-      return 17.714;
-    case "battle_rival_3": //BW Final N Battle
-      return 17.586;
-    case "battle_trainer": //BW Trainer Battle
-      return 13.686;
-    case "battle_wild": //BW Wild Battle
-      return 12.703;
-    case "battle_wild_strong": //BW Strong Wild Battle
-      return 13.940;
-    case "end_summit": //PMD RTDX Sky Tower Summit
-      return 30.025;
-    case "battle_plasma_grunt": //BW Team Plasma Battle
-      return 12.974;
+      case "battle_kanto_champion": //B2W2 Kanto Champion Battle
+        return 13.950;
+      case "battle_johto_champion": //B2W2 Johto Champion Battle
+        return 23.498;
+      case "battle_hoenn_champion": //B2W2 Hoenn Champion Battle
+        return 11.328;
+      case "battle_sinnoh_champion": //B2W2 Sinnoh Champion Battle
+        return 12.235;
+      case "battle_champion_alder": //BW Unova Champion Battle
+        return 27.653;
+      case "battle_champion_iris": //B2W2 Unova Champion Battle
+        return 10.145;
+      case "battle_kalos_champion": //XY Kalos Champion Battle
+        return 10.380;
+      case "battle_alola_champion": //USUM Alola Champion Battle
+        return 13.025;
+      case "battle_galar_champion": //SWSH Galar Champion Battle
+        return 61.635;
+      case "battle_champion_geeta": //SV Champion Geeta Battle
+        return 37.447;
+      case "battle_champion_nemona": //SV Champion Nemona Battle
+        return 14.914;
+      case "battle_champion_kieran": //SV Champion Kieran Battle
+        return 7.206;
+      case "battle_hoenn_elite": //ORAS Elite Four Battle
+        return 11.350;
+      case "battle_unova_elite": //BW Elite Four Battle
+        return 17.730;
+      case "battle_kalos_elite": //XY Elite Four Battle
+        return 12.340;
+      case "battle_alola_elite": //SM Elite Four Battle
+        return 19.212;
+      case "battle_galar_elite": //SWSH League Tournament Battle
+        return 164.069;
+      case "battle_paldea_elite": //SV Elite Four Battle
+        return 12.770;
+      case "battle_bb_elite": //SV BB League Elite Four Battle
+        return 19.434;
+      case "battle_final_encounter": //PMD RTDX Rayquaza's Domain
+        return 19.159;
+      case "battle_final": //BW Ghetsis Battle
+        return 16.453;
+      case "battle_kanto_gym": //B2W2 Kanto Gym Battle
+        return 13.857;
+      case "battle_johto_gym": //B2W2 Johto Gym Battle
+        return 12.911;
+      case "battle_hoenn_gym": //B2W2 Hoenn Gym Battle
+        return 12.379;
+      case "battle_sinnoh_gym": //B2W2 Sinnoh Gym Battle
+        return 13.122;
+      case "battle_unova_gym": //BW Unova Gym Battle
+        return 19.145;
+      case "battle_kalos_gym": //XY Kalos Gym Battle
+        return 44.810;
+      case "battle_galar_gym": //SWSH Galar Gym Battle
+        return 171.262;
+      case "battle_paldea_gym": //SV Paldea Gym Battle
+        return 127.489;
+      case "battle_legendary_kanto": //XY Kanto Legendary Battle
+        return 32.966;
+      case "battle_legendary_raikou": //HGSS Raikou Battle
+        return 12.632;
+      case "battle_legendary_entei": //HGSS Entei Battle
+        return 2.905;
+      case "battle_legendary_suicune": //HGSS Suicune Battle
+        return 12.636;
+      case "battle_legendary_lugia": //HGSS Lugia Battle
+        return 19.770;
+      case "battle_legendary_ho_oh": //HGSS Ho-oh Battle
+        return 17.668;
+      case "battle_legendary_regis_g5": //B2W2 Legendary Titan Battle
+        return 49.500;
+      case "battle_legendary_regis_g6": //ORAS Legendary Titan Battle
+        return 21.130;
+      case "battle_legendary_gro_kyo": //ORAS Groudon & Kyogre Battle
+        return 10.547;
+      case "battle_legendary_rayquaza": //ORAS Rayquaza Battle
+        return 10.495;
+      case "battle_legendary_deoxys": //ORAS Deoxys Battle
+        return 13.333;
+      case "battle_legendary_lake_trio": //ORAS Lake Guardians Battle
+        return 16.887;
+      case "battle_legendary_sinnoh": //ORAS Sinnoh Legendary Battle
+        return 22.770;
+      case "battle_legendary_dia_pal": //ORAS Dialga & Palkia Battle
+        return 16.009;
+      case "battle_legendary_giratina": //ORAS Giratina Battle
+        return 10.451;
+      case "battle_legendary_arceus": //HGSS Arceus Battle
+        return 9.595;
+      case "battle_legendary_unova": //BW Unova Legendary Battle
+        return 13.855;
+      case "battle_legendary_kyurem": //BW Kyurem Battle
+        return 18.314;
+      case "battle_legendary_res_zek": //BW Reshiram & Zekrom Battle
+        return 18.329;
+      case "battle_legendary_xern_yvel": //XY Xerneas & Yveltal Battle
+        return 26.468;
+      case "battle_legendary_tapu": //SM Tapu Battle
+        return 0.000;
+      case "battle_legendary_sol_lun": //SM Solgaleo & Lunala Battle
+        return 6.525;
+      case "battle_legendary_ub": //SM Ultra Beast Battle
+        return 9.818;
+      case "battle_legendary_dusk_dawn": //USUM Dusk Mane & Dawn Wings Necrozma Battle
+        return 5.211;
+      case "battle_legendary_ultra_nec": //USUM Ultra Necrozma Battle
+        return 10.344;
+      case "battle_legendary_zac_zam": //SWSH Zacian & Zamazenta Battle
+        return 11.424;
+      case "battle_legendary_glas_spec": //SWSH Glastrier & Spectrier Battle
+        return 12.503;
+      case "battle_legendary_calyrex": //SWSH Calyrex Battle
+        return 50.641;
+      case "battle_legendary_birds_galar": //SWSH Galarian Legendary Birds Battle
+        return 0.175;
+      case "battle_legendary_ruinous": //SV Treasures of Ruin Battle
+        return 6.333;
+      case "battle_legendary_loyal_three": //SV Loyal Three Battle
+        return 6.500;
+      case "battle_legendary_ogerpon": //SV Ogerpon Battle
+        return 14.335;
+      case "battle_legendary_terapagos": //SV Terapagos Battle
+        return 24.377;
+      case "battle_legendary_pecharunt": //SV Pecharunt Battle
+        return 6.508;
+      case "battle_rival": //BW Rival Battle
+        return 13.689;
+      case "battle_rival_2": //BW N Battle
+        return 17.714;
+      case "battle_rival_3": //BW Final N Battle
+        return 17.586;
+      case "battle_trainer": //BW Trainer Battle
+        return 13.686;
+      case "battle_wild": //BW Wild Battle
+        return 12.703;
+      case "battle_wild_strong": //BW Strong Wild Battle
+        return 13.940;
+      case "end_summit": //PMD RTDX Sky Tower Summit
+        return 30.025;
+      case "battle_plasma_grunt": //BW Team Plasma Battle
+        return 12.974;
     }
 
     return 0;
@@ -2037,7 +2038,7 @@ export default class BattleScene extends SceneBase {
         }
         if ((modifier as PersistentModifier).add(this.modifiers, !!virtual, this)) {
           if (modifier instanceof PokemonFormChangeItemModifier || modifier instanceof TerastallizeModifier) {
-            success = modifier.apply([ this.getPokemonById(modifier.pokemonId), true ]);
+            success = modifier.apply([this.getPokemonById(modifier.pokemonId), true]);
           }
           if (playSound && !this.sound.get(soundName)) {
             this.playSound(soundName);
@@ -2064,7 +2065,7 @@ export default class BattleScene extends SceneBase {
           for (const p in this.party) {
             const pokemon = this.party[p];
 
-            const args: any[] = [ pokemon ];
+            const args: any[] = [pokemon];
             if (modifier instanceof PokemonHpRestoreModifier) {
               if (!(modifier as PokemonHpRestoreModifier).fainted) {
                 const hpRestoreMultiplier = new Utils.IntegerHolder(1);
@@ -2089,7 +2090,7 @@ export default class BattleScene extends SceneBase {
 
           return Promise.allSettled([this.party.map(p => p.updateInfo(instant)), ...modifierPromises]).then(() => resolve(success));
         } else {
-          const args = [ this ];
+          const args = [this];
           if (modifier.shouldApply(args)) {
             const result = modifier.apply(args);
             if (result instanceof Promise) {
@@ -2113,7 +2114,7 @@ export default class BattleScene extends SceneBase {
       }
       if ((modifier as PersistentModifier).add(this.enemyModifiers, false, this)) {
         if (modifier instanceof PokemonFormChangeItemModifier || modifier instanceof TerastallizeModifier) {
-          modifier.apply([ this.getPokemonById(modifier.pokemonId), true ]);
+          modifier.apply([this.getPokemonById(modifier.pokemonId), true]);
         }
         for (const rm of modifiersToRemove) {
           this.removeModifier(rm, true);
@@ -2151,7 +2152,7 @@ export default class BattleScene extends SceneBase {
         const newItemModifier = itemModifier.clone() as PokemonHeldItemModifier;
         newItemModifier.pokemonId = target.id;
         const matchingModifier = target.scene.findModifier(m => m instanceof PokemonHeldItemModifier
-                    && (m as PokemonHeldItemModifier).matchType(itemModifier) && m.pokemonId === target.id, target.isPlayer()) as PokemonHeldItemModifier;
+          && (m as PokemonHeldItemModifier).matchType(itemModifier) && m.pokemonId === target.id, target.isPlayer()) as PokemonHeldItemModifier;
         let removeOld = true;
         if (matchingModifier) {
           const maxStackCount = matchingModifier.getMaxStackCount(target.scene);
@@ -2246,7 +2247,7 @@ export default class BattleScene extends SceneBase {
         if (isBoss) {
           count = Math.max(count, Math.floor(chances / 2));
         }
-        getEnemyModifierTypesForWave(difficultyWaveIndex, count, [ enemyPokemon ], this.currentBattle.battleType === BattleType.TRAINER ? ModifierPoolType.TRAINER : ModifierPoolType.WILD, upgradeChance)
+        getEnemyModifierTypesForWave(difficultyWaveIndex, count, [enemyPokemon], this.currentBattle.battleType === BattleType.TRAINER ? ModifierPoolType.TRAINER : ModifierPoolType.WILD, upgradeChance)
           .map(mt => mt.newModifier(enemyPokemon).add(this.enemyModifiers, false, this));
       });
 
@@ -2277,7 +2278,7 @@ export default class BattleScene extends SceneBase {
   }
 
   setModifiersVisible(visible: boolean) {
-    [ this.modifierBar, this.enemyModifierBar ].map(m => m.setVisible(visible));
+    [this.modifierBar, this.enemyModifierBar].map(m => m.setVisible(visible));
   }
 
   updateModifiers(player?: boolean, instant?: boolean): Promise<void> {
@@ -2332,7 +2333,7 @@ export default class BattleScene extends SceneBase {
     if (modifierIndex > -1) {
       modifiers.splice(modifierIndex, 1);
       if (modifier instanceof PokemonFormChangeItemModifier || modifier instanceof TerastallizeModifier) {
-        modifier.apply([ this.getPokemonById(modifier.pokemonId), false ]);
+        modifier.apply([this.getPokemonById(modifier.pokemonId), false]);
       }
       return true;
     }
