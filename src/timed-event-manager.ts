@@ -1,15 +1,14 @@
-
 export enum EventType {
-    SHINY
+  SHINY,
 }
 
 interface TimedEvent {
-    name: string;
-    eventType: EventType;
-    shinyMultiplier?: number;
-    startDate: Date;
-    endDate: Date;
-    bannerFilename?: string
+  name: string;
+  eventType: EventType;
+  shinyMultiplier?: number;
+  startDate: Date;
+  endDate: Date;
+  bannerFilename?: string;
 }
 
 const timedEvents: TimedEvent[] = [
@@ -18,8 +17,8 @@ const timedEvents: TimedEvent[] = [
     eventType: EventType.SHINY,
     shinyMultiplier: 2,
     startDate: new Date(Date.UTC(2024, 5, 14, 0)),
-    endDate: new Date(Date.UTC(2024, 5, 21, 0)),
-    bannerFilename: "pride-update"
+    endDate: new Date(Date.UTC(2025, 5, 21, 0)),
+    bannerFilename: "pride-update",
   },
 ];
 
@@ -27,10 +26,7 @@ export class TimedEventManager {
   constructor() {}
 
   isActive(event: TimedEvent) {
-    return (
-      event.startDate < new Date() &&
-        new Date() < event.endDate
-    );
+    return event.startDate < new Date() && new Date() < event.endDate;
   }
 
   activeEvent(): TimedEvent | undefined {
@@ -42,13 +38,17 @@ export class TimedEventManager {
   }
 
   activeEventHasBanner(): boolean {
-    const activeEvents = timedEvents.filter((te) => this.isActive(te) && te.hasOwnProperty("bannerFilename"));
+    const activeEvents = timedEvents.filter(
+      (te) => this.isActive(te) && te.hasOwnProperty("bannerFilename")
+    );
     return activeEvents.length > 0;
   }
 
   getShinyMultiplier(): number {
     let multiplier = 1;
-    const shinyEvents = timedEvents.filter((te) => te.eventType === EventType.SHINY && this.isActive(te));
+    const shinyEvents = timedEvents.filter(
+      (te) => te.eventType === EventType.SHINY && this.isActive(te)
+    );
     shinyEvents.forEach((se) => {
       multiplier *= se.shinyMultiplier;
     });
@@ -57,6 +57,9 @@ export class TimedEventManager {
   }
 
   getEventBannerFilename(): string {
-    return timedEvents.find((te: TimedEvent) => this.isActive(te)).bannerFilename ?? null;
+    return (
+      timedEvents.find((te: TimedEvent) => this.isActive(te)).bannerFilename ??
+      null
+    );
   }
 }
