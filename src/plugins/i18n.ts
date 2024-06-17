@@ -1,6 +1,8 @@
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import processor, { KoreanPostpositionProcessor } from "i18next-korean-postposition-processor";
+import processor, {
+  KoreanPostpositionProcessor,
+} from "i18next-korean-postposition-processor";
 
 import { deConfig } from "#app/locales/de/config.js";
 import { enConfig } from "#app/locales/en/config.js";
@@ -12,59 +14,63 @@ import { ptBrConfig } from "#app/locales/pt_BR/config.js";
 import { zhCnConfig } from "#app/locales/zh_CN/config.js";
 import { zhTwConfig } from "#app/locales/zh_TW/config.js";
 
+export interface SimpleSettingEntries {
+  [key: string]: string;
+}
+
 export interface SimpleTranslationEntries {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export interface MoveTranslationEntry {
-  name: string,
-  effect: string
+  name: string;
+  effect: string;
 }
 
 export interface MoveTranslationEntries {
-  [key: string]: MoveTranslationEntry
+  [key: string]: MoveTranslationEntry;
 }
 
 export interface AbilityTranslationEntry {
-  name: string,
-  description: string
+  name: string;
+  description: string;
 }
 
 export interface AbilityTranslationEntries {
-  [key: string]: AbilityTranslationEntry
+  [key: string]: AbilityTranslationEntry;
 }
 
 export interface ModifierTypeTranslationEntry {
-  name?: string,
-  description?: string,
-  extra?: SimpleTranslationEntries
+  name?: string;
+  description?: string;
+  extra?: SimpleTranslationEntries;
 }
 
 export interface ModifierTypeTranslationEntries {
-  ModifierType: { [key: string]: ModifierTypeTranslationEntry },
-  AttackTypeBoosterItem: SimpleTranslationEntries,
-  TempBattleStatBoosterItem: SimpleTranslationEntries,
-  BaseStatBoosterItem: SimpleTranslationEntries,
-  EvolutionItem: SimpleTranslationEntries,
-  FormChangeItem: SimpleTranslationEntries,
+  ModifierType: { [key: string]: ModifierTypeTranslationEntry };
+  AttackTypeBoosterItem: SimpleTranslationEntries;
+  TempBattleStatBoosterItem: SimpleTranslationEntries;
+  BaseStatBoosterItem: SimpleTranslationEntries;
+  EvolutionItem: SimpleTranslationEntries;
+  FormChangeItem: SimpleTranslationEntries;
 }
 export interface PokemonInfoTranslationEntries {
-  Stat: SimpleTranslationEntries,
-  Type: SimpleTranslationEntries,
+  Stat: SimpleTranslationEntries;
+  Type: SimpleTranslationEntries;
 }
 
 export interface BerryTranslationEntry {
-  name: string,
-  effect: string,
+  name: string;
+  effect: string;
 }
 
 export interface BerryTranslationEntries {
-  [key: string]: BerryTranslationEntry
+  [key: string]: BerryTranslationEntry;
 }
 
 export interface AchievementTranslationEntry {
-  name?: string,
-  description?: string,
+  name?: string;
+  description?: string;
 }
 
 export interface AchievementTranslationEntries {
@@ -83,22 +89,28 @@ export interface DialogueTranslationEntries {
   [trainertype: string]: DialogueTranslationCategory;
 }
 
-
 export interface Localizable {
   localize(): void;
 }
 
 const fonts = [
-  new FontFace("emerald", "url(./fonts/PokePT_Wansung.ttf)", { unicodeRange: "U+AC00-D7AC"}),
+  new FontFace("emerald", "url(./fonts/PokePT_Wansung.ttf)", {
+    unicodeRange: "U+AC00-D7AC",
+  }),
   Object.assign(
-    new FontFace("pkmnems", "url(./fonts/PokePT_Wansung.ttf)", { unicodeRange: "U+AC00-D7AC"}),
+    new FontFace("pkmnems", "url(./fonts/PokePT_Wansung.ttf)", {
+      unicodeRange: "U+AC00-D7AC",
+    }),
     { sizeAdjust: "133%" }
   ),
 ];
 
 function initFonts() {
   fonts.forEach((fontFace: FontFace) => {
-    fontFace.load().then(f => document.fonts.add(f)).catch(e => console.error(e));
+    fontFace
+      .load()
+      .then((f) => document.fonts.add(f))
+      .catch((e) => console.error(e));
   });
 }
 
@@ -135,7 +147,7 @@ export async function initI18n(): Promise<void> {
     fallbackLng: "en",
     supportedLngs: ["en", "es", "fr", "it", "de", "zh", "pt", "ko"],
     detection: {
-      lookupLocalStorage: "prLang"
+      lookupLocalStorage: "prLang",
     },
     debug: true,
     interpolation: {
@@ -143,31 +155,31 @@ export async function initI18n(): Promise<void> {
     },
     resources: {
       en: {
-        ...enConfig
+        ...enConfig,
       },
       es: {
-        ...esConfig
+        ...esConfig,
       },
       fr: {
-        ...frConfig
+        ...frConfig,
       },
       it: {
-        ...itConfig
+        ...itConfig,
       },
       de: {
-        ...deConfig
+        ...deConfig,
       },
       "pt-BR": {
-        ...ptBrConfig
+        ...ptBrConfig,
       },
       "zh-CN": {
-        ...zhCnConfig
+        ...zhCnConfig,
       },
       "zh-TW": {
-        ...zhTwConfig
+        ...zhTwConfig,
       },
       ko: {
-        ...koConfig
+        ...koConfig,
       },
     },
     postProcess: ["korean-postposition"],
@@ -222,6 +234,7 @@ declare module "i18next" {
       tutorial: SimpleTranslationEntries;
       voucher: SimpleTranslationEntries;
       weather: SimpleTranslationEntries;
+      setting: SimpleSettingEntries;
     };
   }
 }
@@ -233,4 +246,3 @@ export function getIsInitialized(): boolean {
 }
 
 let isInitialized = false;
-

@@ -1,26 +1,29 @@
 import UiHandler from "../ui-handler";
 import BattleScene from "../../battle-scene";
-import {Mode} from "../ui";
-import {InterfaceConfig} from "../../inputs-controller";
-import {addWindow} from "../ui-theme";
-import {addTextObject, TextStyle} from "../text";
-import {getIconWithSettingName} from "#app/configs/inputs/configHandler";
-import NavigationMenu, {NavigationManager} from "#app/ui/settings/navigationMenu";
+import { Mode } from "../ui";
+import { InterfaceConfig } from "../../inputs-controller";
+import { addWindow } from "../ui-theme";
+import { addTextObject, TextStyle } from "../text";
+import { getIconWithSettingName } from "#app/configs/inputs/configHandler";
+import NavigationMenu, {
+  NavigationManager,
+} from "#app/ui/settings/navigationMenu";
 import { Device } from "#enums/devices";
 import { Button } from "#enums/buttons";
+import i18next from "i18next";
 
 export interface InputsIcons {
-    [key: string]: Phaser.GameObjects.Sprite;
+  [key: string]: Phaser.GameObjects.Sprite;
 }
 
 export interface LayoutConfig {
-    optionsContainer: Phaser.GameObjects.Container;
-    inputsIcons: InputsIcons;
-    settingLabels: Phaser.GameObjects.Text[];
-    optionValueLabels: Phaser.GameObjects.Text[][];
-    optionCursors: integer[];
-    keys: string[];
-    bindingSettings: Array<String>;
+  optionsContainer: Phaser.GameObjects.Container;
+  inputsIcons: InputsIcons;
+  settingLabels: Phaser.GameObjects.Text[];
+  optionValueLabels: Phaser.GameObjects.Text[][];
+  optionCursors: integer[];
+  keys: string[];
+  bindingSettings: Array<String>;
 }
 /**
  * Abstract class for handling UI elements related to control settings.
@@ -79,7 +82,11 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
   getLocalStorageSetting(): object {
     // Retrieve the settings from local storage or use an empty object if none exist.
-    const settings: object = localStorage.hasOwnProperty(this.localStoragePropertyName) ? JSON.parse(localStorage.getItem(this.localStoragePropertyName)) : {};
+    const settings: object = localStorage.hasOwnProperty(
+      this.localStoragePropertyName
+    )
+      ? JSON.parse(localStorage.getItem(this.localStoragePropertyName))
+      : {};
     return settings;
   }
 
@@ -90,45 +97,100 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
     const ui = this.getUi();
     this.navigationIcons = {};
 
-    this.settingsContainer = this.scene.add.container(1, -(this.scene.game.canvas.height / 6) + 1);
+    this.settingsContainer = this.scene.add.container(
+      1,
+      -(this.scene.game.canvas.height / 6) + 1
+    );
 
-    this.settingsContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.scene.game.canvas.width / 6, this.scene.game.canvas.height / 6), Phaser.Geom.Rectangle.Contains);
+    this.settingsContainer.setInteractive(
+      new Phaser.Geom.Rectangle(
+        0,
+        0,
+        this.scene.game.canvas.width / 6,
+        this.scene.game.canvas.height / 6
+      ),
+      Phaser.Geom.Rectangle.Contains
+    );
 
     this.navigationContainer = new NavigationMenu(this.scene, 0, 0);
 
-    this.optionsBg = addWindow(this.scene, 0, this.navigationContainer.height, (this.scene.game.canvas.width / 6) - 2, (this.scene.game.canvas.height / 6) - 16 - this.navigationContainer.height - 2);
+    this.optionsBg = addWindow(
+      this.scene,
+      0,
+      this.navigationContainer.height,
+      this.scene.game.canvas.width / 6 - 2,
+      this.scene.game.canvas.height / 6 -
+        16 -
+        this.navigationContainer.height -
+        2
+    );
     this.optionsBg.setOrigin(0, 0);
 
-
-    this.actionsBg = addWindow(this.scene, 0, (this.scene.game.canvas.height / 6) - this.navigationContainer.height, (this.scene.game.canvas.width / 6) - 2, 22);
+    this.actionsBg = addWindow(
+      this.scene,
+      0,
+      this.scene.game.canvas.height / 6 - this.navigationContainer.height,
+      this.scene.game.canvas.width / 6 - 2,
+      22
+    );
     this.actionsBg.setOrigin(0, 0);
 
     const iconAction = this.scene.add.sprite(0, 0, "keyboard");
     iconAction.setOrigin(0, -0.1);
-    iconAction.setPositionRelative(this.actionsBg, this.navigationContainer.width - 32, 4);
+    iconAction.setPositionRelative(
+      this.actionsBg,
+      this.navigationContainer.width - 32,
+      4
+    );
     this.navigationIcons["BUTTON_ACTION"] = iconAction;
 
-    const actionText = addTextObject(this.scene, 0, 0, "Action", TextStyle.SETTINGS_LABEL);
+    const actionText = addTextObject(
+      this.scene,
+      0,
+      0,
+      i18next.t("setting:action"),
+      TextStyle.SETTINGS_LABEL
+    );
     actionText.setOrigin(0, 0.15);
-    actionText.setPositionRelative(iconAction, -actionText.width/6-2, 0);
+    actionText.setPositionRelative(iconAction, -actionText.width / 6 - 2, 0);
 
     const iconCancel = this.scene.add.sprite(0, 0, "keyboard");
     iconCancel.setOrigin(0, -0.1);
-    iconCancel.setPositionRelative(this.actionsBg, this.navigationContainer.width - 100, 4);
+    iconCancel.setPositionRelative(
+      this.actionsBg,
+      this.navigationContainer.width - 100,
+      4
+    );
     this.navigationIcons["BUTTON_CANCEL"] = iconCancel;
 
-    const cancelText = addTextObject(this.scene, 0, 0, "Cancel", TextStyle.SETTINGS_LABEL);
+    const cancelText = addTextObject(
+      this.scene,
+      0,
+      0,
+      i18next.t("setting:cancel"),
+      TextStyle.SETTINGS_LABEL
+    );
     cancelText.setOrigin(0, 0.15);
-    cancelText.setPositionRelative(iconCancel, -cancelText.width/6-2, 0);
+    cancelText.setPositionRelative(iconCancel, -cancelText.width / 6 - 2, 0);
 
     const iconReset = this.scene.add.sprite(0, 0, "keyboard");
     iconReset.setOrigin(0, -0.1);
-    iconReset.setPositionRelative(this.actionsBg, this.navigationContainer.width - 180, 4);
+    iconReset.setPositionRelative(
+      this.actionsBg,
+      this.navigationContainer.width - 180,
+      4
+    );
     this.navigationIcons["BUTTON_HOME"] = iconReset;
 
-    const resetText = addTextObject(this.scene, 0, 0, "Reset all", TextStyle.SETTINGS_LABEL);
+    const resetText = addTextObject(
+      this.scene,
+      0,
+      0,
+      i18next.t("setting:resetAll"),
+      TextStyle.SETTINGS_LABEL
+    );
     resetText.setOrigin(0, 0.15);
-    resetText.setPositionRelative(iconReset, -resetText.width/6-2, 0);
+    resetText.setPositionRelative(iconReset, -resetText.width / 6 - 2, 0);
 
     this.settingsContainer.add(this.optionsBg);
     this.settingsContainer.add(this.actionsBg);
@@ -162,13 +224,24 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
       const inputsIcons: InputsIcons = {};
 
       // Fetch common setting keys such as 'Controller' and 'Gamepad Support' from gamepad settings.
-      const commonSettingKeys = Object.keys(this.setting).slice(0, this.commonSettingsCount).map(key => this.setting[key]);
+      const commonSettingKeys = Object.keys(this.setting)
+        .slice(0, this.commonSettingsCount)
+        .map((key) => this.setting[key]);
       // Combine common and specific bindings into a single array.
-      const specificBindingKeys = [...commonSettingKeys, ...Object.keys(config.settings)];
+      const specificBindingKeys = [
+        ...commonSettingKeys,
+        ...Object.keys(config.settings),
+      ];
       // Fetch default values for these settings and prepare to highlight selected options.
-      const optionCursors = Object.values(Object.keys(this.settingDeviceDefaults).filter(s => specificBindingKeys.includes(s)).map(k => this.settingDeviceDefaults[k]));
+      const optionCursors = Object.values(
+        Object.keys(this.settingDeviceDefaults)
+          .filter((s) => specificBindingKeys.includes(s))
+          .map((k) => this.settingDeviceDefaults[k])
+      );
       // Filter out settings that are not relevant to the current gamepad configuration.
-      const settingFiltered = Object.keys(this.setting).filter(_key => specificBindingKeys.includes(this.setting[_key]));
+      const settingFiltered = Object.keys(this.setting).filter((_key) =>
+        specificBindingKeys.includes(this.setting[_key])
+      );
       // Loop through the filtered settings to manage display and options.
 
       settingFiltered.forEach((setting, s) => {
@@ -177,8 +250,16 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
         // Create and add a text object for the setting name to the scene.
         const isLock = this.settingBlacklisted.includes(this.setting[setting]);
-        const labelStyle = isLock ? TextStyle.SETTINGS_LOCKED : TextStyle.SETTINGS_LABEL;
-        settingLabels[s] = addTextObject(this.scene, 8, 28 + s * 16, settingName, labelStyle);
+        const labelStyle = isLock
+          ? TextStyle.SETTINGS_LOCKED
+          : TextStyle.SETTINGS_LABEL;
+        settingLabels[s] = addTextObject(
+          this.scene,
+          8,
+          28 + s * 16,
+          settingName,
+          labelStyle
+        );
         settingLabels[s].setOrigin(0, 0);
         optionsContainer.add(settingLabels[s]);
 
@@ -186,19 +267,31 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         const valueLabels: Phaser.GameObjects.GameObject[] = [];
 
         // Process each option for the current setting.
-        for (const [o, option] of this.settingDeviceOptions[this.setting[setting]].entries()) {
+        for (const [o, option] of this.settingDeviceOptions[
+          this.setting[setting]
+        ].entries()) {
           // Check if the current setting is for binding keys.
           if (bindingSettings.includes(this.setting[setting])) {
             // Create a label for non-null options, typically indicating actionable options like 'change'.
             if (o) {
-              const valueLabel = addTextObject(this.scene, 0, 0, isLock ? "" : option, TextStyle.WINDOW);
+              const valueLabel = addTextObject(
+                this.scene,
+                0,
+                0,
+                isLock ? "" : option,
+                TextStyle.WINDOW
+              );
               valueLabel.setOrigin(0, 0);
               optionsContainer.add(valueLabel);
               valueLabels.push(valueLabel);
               continue;
             }
             // For null options, add an icon for the key.
-            const icon = this.scene.add.sprite(0, 0, this.textureOverride ? this.textureOverride : config.padType);
+            const icon = this.scene.add.sprite(
+              0,
+              0,
+              this.textureOverride ? this.textureOverride : config.padType
+            );
             icon.setOrigin(0, -0.15);
             inputsIcons[this.setting[setting]] = icon;
             optionsContainer.add(icon);
@@ -206,7 +299,15 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
             continue;
           }
           // For regular settings like 'Gamepad support', create a label and determine if it is selected.
-          const valueLabel = addTextObject(this.scene, 0, 0, option, this.settingDeviceDefaults[this.setting[setting]] === o ? TextStyle.SETTINGS_SELECTED : TextStyle.WINDOW);
+          const valueLabel = addTextObject(
+            this.scene,
+            0,
+            0,
+            option,
+            this.settingDeviceDefaults[this.setting[setting]] === o
+              ? TextStyle.SETTINGS_SELECTED
+              : TextStyle.WINDOW
+          );
           valueLabel.setOrigin(0, 0);
 
           optionsContainer.add(valueLabel);
@@ -219,16 +320,20 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
         // Calculate the total width of all option labels within a specific setting
         // This is achieved by summing the width of each option label
-        const totalWidth = optionValueLabels[s].map((o) => (o as Phaser.GameObjects.Text).width).reduce((total, width) => total += width, 0);
+        const totalWidth = optionValueLabels[s]
+          .map((o) => (o as Phaser.GameObjects.Text).width)
+          .reduce((total, width) => (total += width), 0);
 
         // Define the minimum width for a label, ensuring it's at least 78 pixels wide or the width of the setting label plus some padding
         const labelWidth = Math.max(130, settingLabels[s].displayWidth + 8);
 
         // Calculate the total available space for placing option labels next to their setting label
         // We reserve space for the setting label and then distribute the remaining space evenly
-        const totalSpace = (300 - labelWidth) - totalWidth / 6;
+        const totalSpace = 300 - labelWidth - totalWidth / 6;
         // Calculate the spacing between options based on the available space divided by the number of gaps between labels
-        const optionSpacing = Math.floor(totalSpace / (optionValueLabels[s].length - 1));
+        const optionSpacing = Math.floor(
+          totalSpace / (optionValueLabels[s].length - 1)
+        );
 
         // Initialize xOffset to zero, which will be used to position each option label horizontally
         let xOffset = 0;
@@ -236,9 +341,14 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         // Start positioning each option label one by one
         for (const value of optionValueLabels[s]) {
           // Set the option label's position right next to the setting label, adjusted by xOffset
-          (value as Phaser.GameObjects.Text).setPositionRelative(settingLabels[s], labelWidth + xOffset, 0);
+          (value as Phaser.GameObjects.Text).setPositionRelative(
+            settingLabels[s],
+            labelWidth + xOffset,
+            0
+          );
           // Move the xOffset to the right for the next label, ensuring each label is spaced evenly
-          xOffset += (value as Phaser.GameObjects.Text).width / 6 + optionSpacing;
+          xOffset +=
+            (value as Phaser.GameObjects.Text).width / 6 + optionSpacing;
         }
       });
 
@@ -275,7 +385,9 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
    */
   updateBindings(): void {
     // Hide the options container for all layouts to reset the UI visibility.
-    Object.keys(this.layout).forEach((key) => this.layout[key].optionsContainer.setVisible(false));
+    Object.keys(this.layout).forEach((key) =>
+      this.layout[key].optionsContainer.setVisible(false)
+    );
     // Fetch the active gamepad configuration from the input controller.
     const activeConfig = this.getActiveConfig();
 
@@ -289,7 +401,12 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
     // Update the cursor for each key based on the stored settings or default cursors.
     this.keys.forEach((key, index) => {
-      this.setOptionCursor(index, settings.hasOwnProperty(key as string) ? settings[key as string] : this.optionCursors[index]);
+      this.setOptionCursor(
+        index,
+        settings.hasOwnProperty(key as string)
+          ? settings[key as string]
+          : this.optionCursors[index]
+      );
     });
 
     // If the active configuration has no custom bindings set, exit the function early.
@@ -317,8 +434,8 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
   updateNavigationDisplay() {
     const specialIcons = {
-      "BUTTON_HOME": "HOME.png",
-      "BUTTON_DELETE": "DEL.png",
+      BUTTON_HOME: "HOME.png",
+      BUTTON_DELETE: "DEL.png",
     };
     for (const settingName of Object.keys(this.navigationIcons)) {
       if (Object.keys(specialIcons).includes(settingName)) {
@@ -327,7 +444,8 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         this.navigationIcons[settingName].alpha = 1;
         continue;
       }
-      const icon = this.scene.inputController?.getIconForLatestInputRecorded(settingName);
+      const icon =
+        this.scene.inputController?.getIconForLatestInputRecorded(settingName);
       if (icon) {
         const type = this.scene.inputController?.getLastSourceType();
         this.navigationIcons[settingName].setTexture(type);
@@ -429,7 +547,10 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         if (!this.optionCursors || !this.optionValueLabels) {
           return;
         }
-        if (this.settingBlacklisted.includes(setting) || !setting.includes("BUTTON_")) {
+        if (
+          this.settingBlacklisted.includes(setting) ||
+            !setting.includes("BUTTON_")
+        ) {
           success = false;
         } else {
           success = this.setSetting(this.scene, setting, 1);
@@ -439,10 +560,12 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         if (!this.optionValueLabels) {
           return false;
         }
-        if (cursor) { // If not at the top, move the cursor up.
+        if (cursor) {
+          // If not at the top, move the cursor up.
           if (this.cursor) {
             success = this.setCursor(this.cursor - 1);
-          } else {// If at the top of the visible items, scroll up.
+          } else {
+            // If at the top of the visible items, scroll up.
             success = this.setScrollCursor(this.scrollCursor - 1);
           }
         } else {
@@ -450,7 +573,9 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
           // First, set the cursor to the last visible element, preparing for the scroll to the end.
           const successA = this.setCursor(this.rowsToDisplay - 1);
           // Then, adjust the scroll to display the bottommost elements of the menu.
-          const successB = this.setScrollCursor(this.optionValueLabels.length - this.rowsToDisplay);
+          const successB = this.setScrollCursor(
+            this.optionValueLabels.length - this.rowsToDisplay
+          );
           success = successA && successB; // success is just there to play the little validation sound effect
         }
         break;
@@ -461,7 +586,10 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         if (cursor < this.optionValueLabels.length - 1) {
           if (this.cursor < this.rowsToDisplay - 1) {
             success = this.setCursor(this.cursor + 1);
-          } else if (this.scrollCursor < this.optionValueLabels.length - this.rowsToDisplay) {
+          } else if (
+            this.scrollCursor <
+              this.optionValueLabels.length - this.rowsToDisplay
+          ) {
             success = this.setScrollCursor(this.scrollCursor + 1);
           }
         } else {
@@ -477,20 +605,37 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
         if (!this.optionCursors || !this.optionValueLabels) {
           return;
         }
-        if (this.settingBlacklisted.includes(setting) || setting.includes("BUTTON_")) {
+        if (
+          this.settingBlacklisted.includes(setting) ||
+            setting.includes("BUTTON_")
+        ) {
           success = false;
         } else if (this.optionCursors[cursor]) {
-          success = this.setOptionCursor(cursor, this.optionCursors[cursor] - 1, true);
+          success = this.setOptionCursor(
+            cursor,
+            this.optionCursors[cursor] - 1,
+            true
+          );
         }
         break;
       case Button.RIGHT: // Move selection right within the current option set.
         if (!this.optionCursors || !this.optionValueLabels) {
           return;
         }
-        if (this.settingBlacklisted.includes(setting) || setting.includes("BUTTON_")) {
+        if (
+          this.settingBlacklisted.includes(setting) ||
+            setting.includes("BUTTON_")
+        ) {
           success = false;
-        } else if (this.optionCursors[cursor] < this.optionValueLabels[cursor].length - 1) {
-          success = this.setOptionCursor(cursor, this.optionCursors[cursor] + 1, true);
+        } else if (
+          this.optionCursors[cursor] <
+            this.optionValueLabels[cursor].length - 1
+        ) {
+          success = this.setOptionCursor(
+            cursor,
+            this.optionCursors[cursor] + 1,
+            true
+          );
         }
         break;
       case Button.CYCLE_FORM:
@@ -532,13 +677,28 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
 
     // Check if the cursor object exists, if not, create it.
     if (!this.cursorObj) {
-      this.cursorObj = this.scene.add.nineslice(0, 0, "summary_moves_cursor", null, (this.scene.game.canvas.width / 6) - 10, 16, 1, 1, 1, 1);
+      this.cursorObj = this.scene.add.nineslice(
+        0,
+        0,
+        "summary_moves_cursor",
+        null,
+        this.scene.game.canvas.width / 6 - 10,
+        16,
+        1,
+        1,
+        1,
+        1
+      );
       this.cursorObj.setOrigin(0, 0); // Set the origin to the top-left corner.
       this.optionsContainer.add(this.cursorObj); // Add the cursor to the options container.
     }
 
     // Update the position of the cursor object relative to the options background based on the current cursor and scroll positions.
-    this.cursorObj.setPositionRelative(this.optionsBg, 4, 4 + (this.cursor + this.scrollCursor) * 16);
+    this.cursorObj.setPositionRelative(
+      this.optionsBg,
+      4,
+      4 + (this.cursor + this.scrollCursor) * 16
+    );
 
     return ret; // Return the result from the parent class's setCursor method.
   }
@@ -575,7 +735,11 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
    * @param save - Whether to save the setting to local storage.
    * @returns `true` if the option cursor was set successfully.
    */
-  setOptionCursor(settingIndex: integer, cursor: integer, save?: boolean): boolean {
+  setOptionCursor(
+    settingIndex: integer,
+    cursor: integer,
+    save?: boolean
+  ): boolean {
     // Retrieve the specific setting using the settingIndex from the settingDevice enumeration.
     const setting = this.setting[Object.keys(this.setting)[settingIndex]];
 
@@ -583,7 +747,10 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
     const lastCursor = this.optionCursors[settingIndex];
 
     // Check if the setting is not part of the bindings (i.e., it's a regular setting).
-    if (!this.bindingSettings.includes(setting) && !setting.includes("BUTTON_")) {
+    if (
+      !this.bindingSettings.includes(setting) &&
+      !setting.includes("BUTTON_")
+    ) {
       // Get the label of the last selected option and revert its color to the default.
       const lastValueLabel = this.optionValueLabels[settingIndex][lastCursor];
       lastValueLabel.setColor(this.getTextColor(TextStyle.WINDOW));
@@ -595,7 +762,9 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
       // Change the color of the new selected option to indicate it's selected.
       const newValueLabel = this.optionValueLabels[settingIndex][cursor];
       newValueLabel.setColor(this.getTextColor(TextStyle.SETTINGS_SELECTED));
-      newValueLabel.setShadowColor(this.getTextColor(TextStyle.SETTINGS_SELECTED, true));
+      newValueLabel.setShadowColor(
+        this.getTextColor(TextStyle.SETTINGS_SELECTED, true)
+      );
     }
 
     // If the save flag is set, save the setting to local storage
@@ -621,7 +790,8 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
     // Iterate over all setting labels to update their visibility.
     for (let s = 0; s < this.settingLabels.length; s++) {
       // Determine if the current setting should be visible based on the scroll position.
-      const visible = s >= this.scrollCursor && s < this.scrollCursor + this.rowsToDisplay;
+      const visible =
+        s >= this.scrollCursor && s < this.scrollCursor + this.rowsToDisplay;
 
       // Set the visibility of the setting label and its corresponding options.
       this.settingLabels[s].setVisible(visible);
@@ -656,5 +826,4 @@ export default abstract class AbstractControlSettingsUiHandler extends UiHandler
     // Set the cursor object reference to null to fully dereference it.
     this.cursorObj = null;
   }
-
 }

@@ -15,7 +15,7 @@ import {
   PGMbattleSpecDialogue,
   PGMdialogue,
   PGMdoubleBattleDialogue,
-  PGMmiscDialogue
+  PGMmiscDialogue,
 } from "./dialogue";
 import { egg } from "./egg";
 import { fightUiHandler } from "./fight-ui-handler";
@@ -39,6 +39,7 @@ import { tutorial } from "./tutorial";
 import { voucher } from "./voucher";
 import { weather } from "./weather";
 import { partyUiHandler } from "./party-ui-handler";
+import { setting } from "./setting";
 
 export const zhCnConfig = {
   ability: ability,
@@ -82,5 +83,6 @@ export const zhCnConfig = {
   tutorial: tutorial,
   voucher: voucher,
   weather: weather,
-  partyUiHandler: partyUiHandler
+  partyUiHandler: partyUiHandler,
+  setting: setting,
 };
