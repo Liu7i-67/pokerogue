@@ -371,56 +371,74 @@ export function setSetting(
     return false;
   }
   switch (Setting[index].key) {
+  // 无需处理i18
   case SettingKeys.Game_Speed:
     scene.gameSpeed = parseFloat(
       Setting[index].options[value].replace("x", "")
     );
     break;
+    // 无需处理i18
   case SettingKeys.Master_Volume:
     scene.masterVolume = value
       ? parseInt(Setting[index].options[value]) * 0.01
       : 0;
     scene.updateSoundVolume();
     break;
+    // 无需处理i18
   case SettingKeys.BGM_Volume:
     scene.bgmVolume = value
       ? parseInt(Setting[index].options[value]) * 0.01
       : 0;
     scene.updateSoundVolume();
     break;
+    // 无需处理i18
   case SettingKeys.SE_Volume:
     scene.seVolume = value
       ? parseInt(Setting[index].options[value]) * 0.01
       : 0;
     scene.updateSoundVolume();
     break;
+    // 无需处理i18
   case SettingKeys.Music_Preference:
     scene.musicPreference = value;
     break;
+    // 无需处理i18
   case SettingKeys.Damage_Numbers:
     scene.damageNumbersMode = value;
     break;
+    // 无需处理i18
   case SettingKeys.UI_Theme:
     scene.uiTheme = value;
     break;
+    // 无需处理i18
   case SettingKeys.Window_Type:
     updateWindowType(scene, parseInt(Setting[index].options[value]));
     break;
+    // 已处理i18
   case SettingKeys.Tutorials:
-    scene.enableTutorials = Setting[index].options[value] === "On";
+    scene.enableTutorials =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Move_Info:
-    scene.enableMoveInfo = Setting[index].options[value] === "On";
+    scene.enableMoveInfo =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Enable_Retries:
-    scene.enableRetries = Setting[index].options[value] === "On";
+    scene.enableRetries =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Skip_Seen_Dialogues:
-    scene.skipSeenDialogues = Setting[index].options[value] === "On";
+    scene.skipSeenDialogues =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 无需处理i18
   case SettingKeys.Battle_Style:
     scene.battleStyle = value;
     break;
+    // 无需处理i18
   case SettingKeys.Candy_Upgrade_Notification:
     if (scene.candyUpgradeNotification === value) {
       break;
@@ -431,61 +449,81 @@ export function setSetting(
       new CandyUpgradeNotificationChangedEvent(value)
     );
     break;
+    // 无需处理i18
   case SettingKeys.Candy_Upgrade_Display:
     scene.candyUpgradeDisplay = value;
+    // 已处理i18
   case SettingKeys.Money_Format:
     switch (Setting[index].options[value]) {
-    case "Normal":
+    case i18next.t("setting:normal"):
       scene.moneyFormat = MoneyFormat.NORMAL;
       break;
-    case "Abbreviated":
+    case i18next.t("setting:abbreviated"):
       scene.moneyFormat = MoneyFormat.ABBREVIATED;
       break;
     }
     scene.updateMoneyText(false);
     break;
+    // 无需处理i18
   case SettingKeys.Sprite_Set:
     scene.experimentalSprites = !!value;
     if (value) {
       scene.initExpSprites();
     }
     break;
+    // 已处理i18
   case SettingKeys.Move_Animations:
-    scene.moveAnimations = Setting[index].options[value] === "On";
+    scene.moveAnimations =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Show_Moveset_Flyout:
-    scene.showMovesetFlyout = Setting[index].options[value] === "On";
+    scene.showMovesetFlyout =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Show_Arena_Flyout:
-    scene.showArenaFlyout = Setting[index].options[value] === "On";
+    scene.showArenaFlyout =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Show_Time_Of_Day_Widget:
-    scene.showTimeOfDayWidget = Setting[index].options[value] === "On";
+    scene.showTimeOfDayWidget =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 已处理i18
   case SettingKeys.Time_Of_Day_Animation:
     scene.timeOfDayAnimation =
-        Setting[index].options[value] === "Bounce"
+        Setting[index].options[value] === i18next.t("setting:bounce")
           ? EaseType.BOUNCE
           : EaseType.BACK;
     break;
+    // 已处理i18
   case SettingKeys.Show_Stats_on_Level_Up:
-    scene.showLevelUpStats = Setting[index].options[value] === "On";
+    scene.showLevelUpStats =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 无需处理i18
   case SettingKeys.EXP_Gains_Speed:
     scene.expGainsSpeed = value;
     break;
+    // 无需处理i18
   case SettingKeys.EXP_Party_Display:
     scene.expParty = value;
     break;
+    // 无需处理i18
   case SettingKeys.HP_Bar_Speed:
     scene.hpBarSpeed = value;
     break;
+    // 无需处理i18
   case SettingKeys.Fusion_Palette_Swaps:
     scene.fusionPaletteSwaps = !!value;
     break;
+    // 已处理i18
   case SettingKeys.Player_Gender:
     if (scene.gameData) {
-      const female = Setting[index].options[value] === "Girl";
+      const female =
+          Setting[index].options[value] === i18next.t("setting:girl");
       scene.gameData.gender = female
         ? PlayerGender.FEMALE
         : PlayerGender.MALE;
@@ -499,21 +537,28 @@ export function setSetting(
       return false;
     }
     break;
+    // 已处理i18
   case SettingKeys.Touch_Controls:
     scene.enableTouchControls =
-        Setting[index].options[value] !== "Disabled" && hasTouchscreen();
+        Setting[index].options[value] !== i18next.t("setting:disabled") &&
+        hasTouchscreen();
     const touchControls = document.getElementById("touchControls");
     if (touchControls) {
       touchControls.classList.toggle("visible", scene.enableTouchControls);
     }
     break;
+    // 已处理i18
   case SettingKeys.Vibration:
     scene.enableVibration =
-        Setting[index].options[value] !== "Disabled" && hasTouchscreen();
+        Setting[index].options[value] !== i18next.t("setting:disabled") &&
+        hasTouchscreen();
     break;
+    // 已处理i18
   case SettingKeys.Type_Hints:
-    scene.typeHints = Setting[index].options[value] === "On";
+    scene.typeHints =
+        Setting[index].options[value] === i18next.t("setting:on");
     break;
+    // 无需处理i18
   case SettingKeys.Language:
     if (value) {
       if (scene.ui) {
