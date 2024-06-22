@@ -17,13 +17,13 @@ const timedEvents: TimedEvent[] = [
     eventType: EventType.SHINY,
     shinyMultiplier: 2,
     startDate: new Date(Date.UTC(2024, 5, 14, 0)),
-    endDate: new Date(Date.UTC(2024, 5, 21, 0)),
-    bannerFilename: "pride-update",
+    endDate: new Date(Date.UTC(2024, 6, 23, 0)),
+    bannerFilename: "pride-update"
   },
 ];
 
 export class TimedEventManager {
-  constructor() {}
+  constructor() { }
 
   isActive(event: TimedEvent) {
     return event.startDate < new Date() && new Date() < event.endDate;

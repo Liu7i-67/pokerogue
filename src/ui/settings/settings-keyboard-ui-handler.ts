@@ -63,13 +63,7 @@ export default class SettingsKeyboardUiHandler extends AbstractControlSettingsUi
     this.layout["noKeyboard"] = new Map();
     const optionsContainer = this.scene.add.container(0, 0);
     optionsContainer.setVisible(false); // Initially hide the container as no gamepads are connected.
-    const label = addTextObject(
-      this.scene,
-      8,
-      28,
-      i18next.t("setting:keyboardTips"),
-      TextStyle.SETTINGS_LABEL
-    );
+    const label = addTextObject(this.scene, 8, 28, i18next.t("settings:keyboardPleasePress"), TextStyle.SETTINGS_LABEL);
     label.setOrigin(0, 0);
     optionsContainer.add(label);
     this.settingsContainer.add(optionsContainer);
@@ -83,13 +77,7 @@ export default class SettingsKeyboardUiHandler extends AbstractControlSettingsUi
     );
     this.navigationIcons["BUTTON_DELETE"] = iconDelete;
 
-    const deleteText = addTextObject(
-      this.scene,
-      0,
-      0,
-      i18next.t("setting:delete"),
-      TextStyle.SETTINGS_LABEL
-    );
+    const deleteText = addTextObject(this.scene, 0, 0, i18next.t("settings:delete"), TextStyle.SETTINGS_LABEL);
     deleteText.setOrigin(0, 0.15);
     deleteText.setPositionRelative(iconDelete, -deleteText.width / 6 - 2, 0);
 

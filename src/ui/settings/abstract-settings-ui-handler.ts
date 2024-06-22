@@ -79,9 +79,9 @@ export default class AbstractSettingsUiHandler extends UiHandler {
       this.navigationContainer.height,
       this.scene.game.canvas.width / 6 - 2,
       this.scene.game.canvas.height / 6 -
-        16 -
-        this.navigationContainer.height -
-        2
+      16 -
+      this.navigationContainer.height -
+      2
     );
     this.optionsBg.setOrigin(0, 0);
 
@@ -103,13 +103,7 @@ export default class AbstractSettingsUiHandler extends UiHandler {
     );
     this.navigationIcons["BUTTON_ACTION"] = iconAction;
 
-    const actionText = addTextObject(
-      this.scene,
-      0,
-      0,
-      i18next.t("setting:action"),
-      TextStyle.SETTINGS_LABEL
-    );
+    const actionText = addTextObject(this.scene, 0, 0, i18next.t("settings:action"), TextStyle.SETTINGS_LABEL);
     actionText.setOrigin(0, 0.15);
     actionText.setPositionRelative(iconAction, -actionText.width / 6 - 2, 0);
 
@@ -122,13 +116,7 @@ export default class AbstractSettingsUiHandler extends UiHandler {
     );
     this.navigationIcons["BUTTON_CANCEL"] = iconCancel;
 
-    const cancelText = addTextObject(
-      this.scene,
-      0,
-      0,
-      i18next.t("setting:cancel"),
-      TextStyle.SETTINGS_LABEL
-    );
+    const cancelText = addTextObject(this.scene, 0, 0, i18next.t("settings:back"), TextStyle.SETTINGS_LABEL);
     cancelText.setOrigin(0, 0.15);
     cancelText.setPositionRelative(iconCancel, -cancelText.width / 6 - 2, 0);
 
@@ -139,63 +127,55 @@ export default class AbstractSettingsUiHandler extends UiHandler {
 
     this.reloadSettings = this.settings.filter((s) => s?.requireReload);
 
-    this.settings.forEach((setting, s) => {
-      let settingName = setting.label;
-      if (setting?.requireReload) {
-        settingName += ` (${i18next.t("setting:requiresReload")})`;
-      }
+    this.settings
+      .forEach((setting, s) => {
+        let settingName = setting.label;
+        if (setting?.requireReload) {
+          settingName += ` (${i18next.t("settings:requireReload")})`;
+        }
 
-      this.settingLabels[s] = addTextObject(
-        this.scene,
-        8,
-        28 + s * 16,
-        settingName,
-        TextStyle.SETTINGS_LABEL
-      );
-      this.settingLabels[s].setOrigin(0, 0);
+        this.settingLabels[s] = addTextObject(
+          this.scene,
+          8,
+          28 + s * 16,
+          settingName,
+          TextStyle.SETTINGS_LABEL
+        );
+        this.settingLabels[s].setOrigin(0, 0);
 
-      this.optionsContainer.add(this.settingLabels[s]);
-      this.optionValueLabels.push(
-        setting.options.map((option, o) => {
-          const valueLabel = addTextObject(
-            this.scene,
-            0,
-            0,
-            option,
-            setting.default === o
-              ? TextStyle.SETTINGS_SELECTED
-              : TextStyle.WINDOW
-          );
+        this.optionsContainer.add(this.settingLabels[s]);
+        this.optionValueLabels.push(setting.options.map((option, o) => {
+          const valueLabel = addTextObject(this.scene, 0, 0, option.label, setting.default === o ? TextStyle.SETTINGS_SELECTED : TextStyle.WINDOW);
           valueLabel.setOrigin(0, 0);
 
           this.optionsContainer.add(valueLabel);
 
           return valueLabel;
         })
-      );
-
-      const totalWidth = this.optionValueLabels[s]
-        .map((o) => o.width)
-        .reduce((total, width) => (total += width), 0);
-
-      const labelWidth = Math.max(78, this.settingLabels[s].displayWidth + 8);
-
-      const totalSpace = 300 - labelWidth - totalWidth / 6;
-      const optionSpacing = Math.floor(
-        totalSpace / (this.optionValueLabels[s].length - 1)
-      );
-
-      let xOffset = 0;
-
-      for (const value of this.optionValueLabels[s]) {
-        value.setPositionRelative(
-          this.settingLabels[s],
-          labelWidth + xOffset,
-          0
         );
-        xOffset += value.width / 6 + optionSpacing;
-      }
-    });
+
+        const totalWidth = this.optionValueLabels[s]
+          .map((o) => o.width)
+          .reduce((total, width) => (total += width), 0);
+
+        const labelWidth = Math.max(78, this.settingLabels[s].displayWidth + 8);
+
+        const totalSpace = 300 - labelWidth - totalWidth / 6;
+        const optionSpacing = Math.floor(
+          totalSpace / (this.optionValueLabels[s].length - 1)
+        );
+
+        let xOffset = 0;
+
+        for (const value of this.optionValueLabels[s]) {
+          value.setPositionRelative(
+            this.settingLabels[s],
+            labelWidth + xOffset,
+            0
+          );
+          xOffset += value.width / 6 + optionSpacing;
+        }
+      });
 
     this.optionCursors = this.settings.map((setting) => setting.default);
 
