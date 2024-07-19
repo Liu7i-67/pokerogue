@@ -25,11 +25,13 @@ export class UiInputs {
     this.init();
   }
 
+  // 设置事件监听器并调用 listenInputs 方法。
   init(): void {
     this.events = this.inputsController.events;
     this.listenInputs();
   }
 
+  // 检测输入方法（键盘、触屏或游戏手柄），并更新 scene.inputMethod。
   detectInputMethod(evt): void {
     if (evt.controller_type === "keyboard") {
       //if the touch property is present and defined, then this is a simulated keyboard event from the touch screen
@@ -43,6 +45,7 @@ export class UiInputs {
     }
   }
 
+  // 监听 input_down 和 input_up 事件，并调用相应的处理方法。
   listenInputs(): void {
     this.events.on("input_down", (event) => {
       this.detectInputMethod(event);
@@ -63,12 +66,14 @@ export class UiInputs {
     }, this);
   }
 
+  //  根据输入成功与否，决定是否触发震动。
   doVibration(inputSuccess: boolean, vibrationLength: number): void {
     if (inputSuccess && this.scene.enableVibration && typeof navigator.vibrate !== "undefined") {
       navigator.vibrate(vibrationLength);
     }
   }
 
+  // 返回一个包含按钮动作的对象，分别用于按下和释放按键的处理。
   getActionsKeyDown(): ActionKeys {
     const actions: ActionKeys = {
       [Button.UP]:              () => this.buttonDirection(Button.UP),
@@ -115,20 +120,25 @@ export class UiInputs {
     return actions;
   }
 
+  // buttonDirection: 处理方向键的输入，并触发震动。
   buttonDirection(direction: Button): void {
     const inputSuccess = this.scene.ui.processInput(direction);
     const vibrationLength = 5;
     this.doVibration(inputSuccess, vibrationLength);
   }
 
+  //  处理 ACTION 和 CANCEL 按钮的输入。
   buttonAb(button: Button): void {
     this.scene.ui.processInput(button);
   }
 
+  // 处理触屏输入，调用 SUBMIT 或 ACTION 按钮的处理方法。
   buttonTouch(): void {
     this.scene.ui.processInput(Button.SUBMIT) || this.scene.ui.processInput(Button.ACTION);
   }
 
+
+  // 处理 STATS 按钮的输入，切换统计信息的显示。
   buttonStats(pressed: boolean = true): void {
     // allow access to Button.STATS as a toggle for other elements
     for (const t of this.scene.getInfoToggles(true)) {
@@ -139,6 +149,8 @@ export class UiInputs {
       p.toggleStats(pressed);
     }
   }
+
+  // 处理信息显示的输入。
   buttonInfo(pressed: boolean = true): void {
     if (this.scene.showMovesetFlyout ) {
       for (const p of this.scene.getField().filter(p => p?.isActive(true))) {
@@ -151,6 +163,7 @@ export class UiInputs {
     }
   }
 
+  // 处理菜单按钮的输入，切换菜单模式。
   buttonMenu(): void {
     if (this.scene.disableMenu) {
       return;
@@ -177,6 +190,7 @@ export class UiInputs {
     }
   }
 
+  // 处理循环选项按钮的输入，适用于特定的 UI 处理程序。
   buttonCycleOption(button: Button): void {
     const whitelist = [StarterSelectUiHandler, SettingsUiHandler, SettingsDisplayUiHandler, SettingsAudioUiHandler, SettingsGamepadUiHandler, SettingsKeyboardUiHandler];
     const uiHandler = this.scene.ui?.getHandler();
@@ -187,6 +201,7 @@ export class UiInputs {
     }
   }
 
+  // 处理游戏速度的调整。
   buttonSpeedChange(up = true): void {
     const settingGameSpeed = settingIndex(SettingKeys.Game_Speed);
     if (up && this.scene.gameSpeed < 5) {

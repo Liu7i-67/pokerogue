@@ -1045,6 +1045,11 @@ export class MoveChargeAnim extends MoveAnim {
   }
 }
 
+/**
+ * 这段代码的主要功能是从一些枚举和原始数据中提取动画配置，并将这些配置分类存储到不同的动画集合中。
+ * 具体来说，它处理了常见动画、充能动画以及各种移动动画。
+ * 我们可以逐步解析这段代码，了解它的具体实现细节和逻辑。
+ */
 export async function populateAnims() {
   const commonAnimNames = Utils.getEnumKeys(CommonAnim).map(k => k.toLowerCase());
   const commonAnimMatchNames = commonAnimNames.map(k => k.replace(/\_/g, ""));

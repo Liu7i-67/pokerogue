@@ -1,3 +1,9 @@
+/**
+ * 这段代码定义了一个InputsController类，
+ * 用于管理和处理游戏中的所有输入控件，
+ * 包括键盘和游戏手柄的交互。
+ * 以下是类的详细说明及其主要功能：
+ */
 import Phaser from "phaser";
 import * as Utils from "./utils";
 import {deepCopy} from "./utils";
@@ -88,22 +94,30 @@ declare module "phaser" {
  * providing a unified interface for all input-related interactions.
  */
 export class InputsController {
+  // 存储所有连接的游戏手柄。
   private gamepads: Array<Phaser.Input.Gamepad.Gamepad> = new Array();
+  // 引用与此实例关联的Phaser场景。
   private scene: BattleScene;
+  // 用于事件处理的Phaser事件发射器。
   public events: Phaser.Events.EventEmitter;
-
+  // 锁定的按钮数组，防止重复按键。
   private buttonLock: Button[] = new Array();
+  // 存储按钮交互状态的映射。
   private interactions: Map<Button, Map<string, boolean>> = new Map();
+  // 存储设备配置的映射。
   private configs: Map<string, InterfaceConfig> = new Map();
-
+  // 是否支持游戏手柄输入的标志。
   public gamepadSupport: boolean = true;
+  // 当前选择的设备（键盘或游戏手柄）。
   public selectedDevice;
-
+  // 存储已断开连接的游戏手柄ID。
   private disconnectedGamepads: Array<String> = new Array();
 
-
+  // 最后一个输入来源（键盘或游戏手柄）。
   public lastSource: string = "keyboard";
+  // 存储每个按钮的定时器数组。
   private inputInterval: NodeJS.Timeout[] = new Array();
+  // 触控控件的实例。
   private touchControls: TouchControl;
 
   /**
@@ -139,6 +153,7 @@ export class InputsController {
   }
 
   /**
+   * 设置事件处理程序并初始化游戏手柄和键盘控件。
      * Sets up event handlers and initializes gamepad and keyboard controls.
      *
      * @remarks
@@ -184,7 +199,7 @@ export class InputsController {
     this.touchControls = new TouchControl(this.scene);
   }
 
-  /**
+  /**处理游戏失去焦点时的动作，例如停用按下的键。
      * Handles actions to take when the game loses focus, such as deactivating pressed keys.
      *
      * @remarks
@@ -196,6 +211,7 @@ export class InputsController {
   }
 
   /**
+   * 启用或禁用游戏手柄输入支持。
      * Enables or disables support for gamepad input.
      *
      * @param value - A boolean indicating whether gamepad support should be enabled (true) or disabled (false).
@@ -212,7 +228,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /**设置当前选择的游戏手柄并初始化相关设置。
      * Sets the currently chosen gamepad and initializes related settings.
      * This method first deactivates any active key presses and then initializes the gamepad settings.
      *
@@ -223,7 +239,7 @@ export class InputsController {
     this.initChosenGamepad(gamepad);
   }
 
-  /**
+  /**设置当前选择的键盘布局并初始化相关设置。
      * Sets the currently chosen keyboard layout and initializes related settings.
      *
      * @param layoutKeyboard - The identifier of the keyboard layout to set as chosen.
@@ -233,7 +249,7 @@ export class InputsController {
     this.initChosenLayoutKeyboard(layoutKeyboard);
   }
 
-  /**
+  /**获取所有连接的游戏手柄的标识符。
      * Retrieves the identifiers of all connected gamepads, excluding any that are currently marked as disconnected.
      * @returns Array<String> An array of strings representing the IDs of the connected gamepads.
      */
@@ -241,7 +257,7 @@ export class InputsController {
     return this.gamepads.filter(g => !this.disconnectedGamepads.includes(g.id)).map(g => g.id);
   }
 
-  /**
+  /**初始化选择的游戏手柄。
      * Initializes the chosen gamepad by setting its identifier in the local storage and updating the UI to reflect the chosen gamepad.
      * If a gamepad name is provided, it uses that as the chosen gamepad; otherwise, it defaults to the currently chosen gamepad.
      * @param gamepadName Optional parameter to specify the name of the gamepad to initialize as chosen.
@@ -254,7 +270,7 @@ export class InputsController {
     handler && handler.updateChosenGamepadDisplay();
   }
 
-  /**
+  /** 初始化选择的键盘布局。
      * Initializes the chosen keyboard layout by setting its identifier in the local storage and updating the UI to reflect the chosen layout.
      * If a layout name is provided, it uses that as the chosen layout; otherwise, it defaults to the currently chosen layout.
      * @param layoutKeyboard Optional parameter to specify the name of the keyboard layout to initialize as chosen.
@@ -267,7 +283,7 @@ export class InputsController {
     handler && handler.updateChosenKeyboardDisplay();
   }
 
-  /**
+  /**处理游戏手柄断开连接。
      * Handles the disconnection of a gamepad by adding its identifier to a list of disconnected gamepads.
      * This is necessary because Phaser retains memory of previously connected gamepads, and without tracking
      * disconnections, it would be impossible to determine the connection status of gamepads. This method ensures
@@ -279,7 +295,7 @@ export class InputsController {
     this.disconnectedGamepads.push(thisGamepad.id);
   }
 
-  /**
+  /**处理游戏手柄重新连接。
      * Updates the tracking of disconnected gamepads when a gamepad is reconnected.
      * It removes the reconnected gamepad's identifier from the `disconnectedGamepads` array,
      * effectively updating its status to connected.
@@ -290,7 +306,7 @@ export class InputsController {
     this.disconnectedGamepads = this.disconnectedGamepads.filter(g => g !== thisGamepad.id);
   }
 
-  /**
+  /** 初始化或更新连接的游戏手柄的配置。
      * Initializes or updates configurations for connected gamepads.
      * It retrieves the names of all connected gamepads, sets up their configurations according to stored or default settings,
      * and ensures these configurations are saved. If the connected gamepad is the currently chosen one,
@@ -315,7 +331,7 @@ export class InputsController {
     handler && handler.updateChosenGamepadDisplay();
   }
 
-  /**
+  /**初始化或更新连接的键盘布局。
      * Initializes or updates configurations for connected keyboards.
      */
   setupKeyboard(): void {
@@ -328,7 +344,7 @@ export class InputsController {
     this.initChosenLayoutKeyboard(this.selectedDevice[Device.KEYBOARD]);
   }
 
-  /**
+  /**刷新并重新索引连接的游戏手柄列表。
      * Refreshes and re-indexes the list of connected gamepads.
      *
      * @remarks
@@ -347,7 +363,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /**确保键盘已初始化。
      * Ensures the keyboard is initialized by checking if there is an active configuration for the keyboard.
      * If not, it sets up the keyboard with default configurations.
      */
@@ -357,7 +373,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /**处理键盘的按下事件。
      * Handles the keydown event for the keyboard.
      *
      * @param event The keyboard event.
@@ -385,7 +401,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /**处理键盘的释放事件。
      * Handles the keyup event for the keyboard.
      *
      * @param event The keyboard event.
@@ -404,7 +420,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /** 处理游戏手柄按钮的按下事件。
      * Handles button press events on a gamepad. This method sets the gamepad as chosen on the first input if no gamepad is currently chosen.
      * It checks if gamepad support is enabled and if the event comes from the chosen gamepad. If so, it maps the button press to a specific
      * action using a custom configuration, emits an event for the button press, and records the time of the action.
@@ -452,7 +468,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /** 处理游戏手柄按钮的释放事件。
      * Responds to a button release event on a gamepad by checking if the gamepad is supported and currently chosen.
      * If conditions are met, it identifies the configured action for the button, emits an event signaling the button release,
      * and clears the record of the button.
@@ -481,7 +497,7 @@ export class InputsController {
     }
   }
 
-  /**
+  /**根据游戏手柄的标识符获取其配置对象。
      * Retrieves the configuration object for a gamepad based on its identifier. The method identifies specific gamepad models
      * based on substrings in the identifier and returns predefined configurations for recognized models.
      * If no specific configuration matches, it defaults to a generic gamepad configuration.
@@ -505,7 +521,7 @@ export class InputsController {
     return pad_generic;
   }
 
-  /**
+  /**根据键盘布局的标识符获取其配置对象。
      * Retrieves the configuration object for a keyboard layout based on its identifier.
      *
      * @param id The identifier string of the keyboard layout.
@@ -519,7 +535,7 @@ export class InputsController {
     return cfg_keyboard_qwerty;
   }
 
-  /**
+  /**停用所有当前按下的键。
      * Deactivates all currently pressed keys.
      */
   deactivatePressedKey(): void {
@@ -529,7 +545,7 @@ export class InputsController {
     this.buttonLock = [];
   }
 
-  /**
+  /**获取当前选择的设备的活动配置。
      * Retrieves the active configuration for the currently chosen device.
      * It checks if a specific device ID is stored in configurations and returns it.
      *
@@ -542,6 +558,7 @@ export class InputsController {
     return null;
   }
 
+  // 获取最近记录的输入的图标。
   getIconForLatestInputRecorded(settingName) {
     if (this.lastSource === "keyboard") {
       this.ensureKeyboardIsInit();
@@ -549,6 +566,7 @@ export class InputsController {
     return getIconForLatestInput(this.configs, this.lastSource, this.selectedDevice, settingName);
   }
 
+  // 获取最后一个输入设备。
   getLastSourceDevice(): Device {
     if (this.lastSource === "gamepad") {
       return Device.GAMEPAD;
@@ -557,6 +575,7 @@ export class InputsController {
     }
   }
 
+  // 获取最后一个输入设备的配置。
   getLastSourceConfig() {
     const sourceDevice = this.getLastSourceDevice();
     if (sourceDevice === Device.KEYBOARD) {
@@ -565,12 +584,13 @@ export class InputsController {
     return this.getActiveConfig(sourceDevice);
   }
 
+  // 获取最后一个输入设备的类型。
   getLastSourceType() {
     const config = this.getLastSourceConfig();
     return config?.padType;
   }
 
-  /**
+  /**向特定游戏手柄注入自定义映射配置。
      * Injects a custom mapping configuration into the configuration for a specific gamepad.
      * If the device does not have an existing configuration, it initializes one first.
      *
@@ -584,6 +604,7 @@ export class InputsController {
     this.configs[selectedDevice].custom = mappingConfigs.custom;
   }
 
+  // 重置配置。
   resetConfigs(): void {
     this.configs = new Map();
     if (this.getGamepadsName()?.length) {
@@ -592,7 +613,7 @@ export class InputsController {
     this.setupKeyboard();
   }
 
-  /**
+  /** 交换配置中的绑定。
      * Swaps a binding in the configuration.
      *
      * @param config The configuration object.

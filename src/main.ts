@@ -9,7 +9,7 @@ import TransitionImagePackPlugin from "phaser3-rex-plugins/templates/transitioni
 import { LoadingScene } from "./loading-scene";
 
 
-// Catch global errors and display them in an alert so users can report the issue.
+// 捕获全局错误并将其显示在警报中，以便用户可以报告问题。
 window.onerror = function (message, source, lineno, colno, error) {
   console.error(error);
   // const errorString = `Received unhandled error. Open browser console and click OK to see details.\nError: ${message}\nSource: ${source}\nLine: ${lineno}\nColumn: ${colno}\nStack: ${error.stack}`;
@@ -18,7 +18,7 @@ window.onerror = function (message, source, lineno, colno, error) {
   return true;
 };
 
-// Catch global promise rejections and display them in an alert so users can report the issue.
+// 捕获全局承诺拒绝并将其显示在警报中，以便用户可以报告问题。
 window.addEventListener("unhandledrejection", (event) => {
   // const errorString = `Received unhandled promise rejection. Open browser console and click OK to see details.\nReason: ${event.reason}`;
   console.error(event.reason);
@@ -26,7 +26,9 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 const config: Phaser.Types.Core.GameConfig = {
+  // 使用webgl渲染
   type: Phaser.WEBGL,
+  // 渲染到id为app的元素中
   parent: "app",
   scale: {
     width: 1920,
@@ -72,7 +74,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 /**
- * Sets this object's position relative to another object with a given offset
+ * 设置此对象相对于具有给定偏移量的另一个对象的位置
  * @param guideObject {@linkcode Phaser.GameObjects.GameObject} to base the position off of
  * @param x The relative x position
  * @param y The relative y position
@@ -164,7 +166,7 @@ fetch("/manifest.json")
     startGame();
     game["manifest"] = jsonResponse.manifest;
   }).catch(() => {
-    // Manifest not found (likely local build)
+    // 未找到清单(可能是本地构建)
     startGame();
   });
 

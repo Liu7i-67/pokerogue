@@ -7,6 +7,12 @@ import * as Utils from "../utils";
 type FadeIn = typeof FadeIn;
 type FadeOut = typeof FadeOut;
 
+/**
+ *
+这段代码的功能是根据游戏速度（gameSpeed）调整时间相关的配置项，
+如动画的持续时间、延迟时间等。通过重写Phaser的时间事件和补间动画方法，
+可以使游戏中的事件根据游戏速度动态调整其时间参数。
+ */
 export function initGameSpeed() {
   const thisArg = this as BattleScene;
 

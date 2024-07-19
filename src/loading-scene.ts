@@ -41,7 +41,7 @@ export class LoadingScene extends SceneBase {
     this.loadImage("logo", "");
     this.loadImage("pride-update", "events");
 
-    // Load menu images
+    // 加载菜单图片
     this.loadAtlas("bg", "ui");
     this.loadAtlas("prompt", "ui");
     this.loadImage("candy", "ui");
@@ -224,7 +224,7 @@ export class LoadingScene extends SceneBase {
     this.loadAtlas("items", "");
     this.loadAtlas("types", "");
 
-    // Get current lang and load the types atlas for it. English will only load types while all other languages will load types and types_<lang>
+    // 获取当前的lang并为其加载类型图集。英语将只加载类型，而所有其他语言将加载类型和type_ <lang>
     const lang = i18next.resolvedLanguage;
     if (lang !== "en") {
       if (Utils.verifyLang(lang)) {

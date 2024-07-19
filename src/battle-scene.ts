@@ -120,14 +120,14 @@ export default class BattleScene extends SceneBase {
   public enableMoveInfo: boolean = true;
   public enableRetries: boolean = false;
   /**
-   * Determines the condition for a notification should be shown for Candy Upgrades
+   * 获取糖果时的通知方式
    * - 0 = 'Off'
    * - 1 = 'Passives Only'
    * - 2 = 'On'
    */
   public candyUpgradeNotification: integer = 0;
   /**
-   * Determines what type of notification is used for Candy Upgrades
+   * 用什么方式显示糖果
    * - 0 = 'Icon'
    * - 1 = 'Animation'
    */
@@ -142,7 +142,7 @@ export default class BattleScene extends SceneBase {
   public skipSeenDialogues: boolean = false;
 
   /**
-     * Defines the experience gain display mode.
+     * 定义经验条变动的展示
      *
      * @remarks
      * The `expParty` can have several modes:
@@ -161,14 +161,14 @@ export default class BattleScene extends SceneBase {
   public showBgmBar: boolean = true;
 
   /**
-   * Determines the selected battle style.
+   * 决定战斗风格
    * - 0 = 'Switch'
    * - 1 = 'Set' - The option to switch the active pokemon at the start of a battle will not display.
    */
   public battleStyle: integer = BattleStyle.SWITCH;
 
   /**
-  * Defines whether or not to show type effectiveness hints
+  * 是否展示伤害克制提示
   * - true: No hints
   * - false: Show hints for moves
    */
@@ -211,7 +211,7 @@ export default class BattleScene extends SceneBase {
   public money: integer;
   public pokemonInfoContainer: PokemonInfoContainer;
   private party: PlayerPokemon[];
-  /** Combined Biome and Wave count text */
+  /** 地图+波次信息 */
   private biomeWaveText: Phaser.GameObjects.Text;
   private moneyText: Phaser.GameObjects.Text;
   private scoreText: Phaser.GameObjects.Text;
@@ -254,7 +254,7 @@ export default class BattleScene extends SceneBase {
   public eventManager: TimedEventManager;
 
   /**
-   * Allows subscribers to listen for events
+   * 允许订阅者监听事件
    *
    * Current Events:
    * - {@linkcode BattleSceneEventType.MOVE_USED} {@linkcode MoveUsedEvent}
@@ -311,9 +311,11 @@ export default class BattleScene extends SceneBase {
 
   create() {
     initGameSpeed.apply(this);
+    // 初始化控制器
     this.inputController = new InputsController(this);
+    // 绑定控制器方法
     this.uiInputs = new UiInputs(this, this.inputController);
-
+    // 初始化游戏数据
     this.gameData = new GameData(this);
 
     addUiThemeOverrides(this);
@@ -604,6 +606,10 @@ export default class BattleScene extends SceneBase {
     });
   }
 
+  /**
+   * 这段代码的主要功能是初始化变种数据（variant data），
+   * 从一个JSON文件中读取数据，并根据是否启用实验性精灵（experimental sprites）来处理变种数据。
+   */
   async initVariantData(): Promise<void> {
     Object.keys(variantData).forEach(key => delete variantData[key]);
     await this.cachedFetch("./images/pokemon/variant/_masterlist.json").then(res => res.json())

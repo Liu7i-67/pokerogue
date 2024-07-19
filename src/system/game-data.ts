@@ -53,7 +53,7 @@ export const defaultStarterSpecies: Species[] = [
   Species.SPRIGATITO, Species.FUECOCO, Species.QUAXLY
 ];
 
-const saveKey = "x0i2O7WRiANTqPmZ"; // Temporary; secure encryption is not yet necessary
+const saveKey = "x0i2O7WRiANTqPmZ"; // 暂时的;目前还不需要安全加密
 
 export function getDataTypeKey(dataType: GameDataType, slotId: integer = 0): string {
   switch (dataType) {
@@ -200,29 +200,29 @@ export interface StarterPreferences {
   [key: integer]: StarterAttributes;
 }
 
-// the latest data saved/loaded for the Starter Preferences. Required to reduce read/writes. Initialize as "{}", since this is the default value and no data needs to be stored if present.
-// if they ever add private static variables, move this into StarterPrefs
+//为Starter Preferences保存/加载最新的数据。需要减少读/写。初始化为"{}"，因为这是默认值，如果存在则不需要存储数据。
+//如果他们添加私有静态变量，移动到StarterPrefs
 const StarterPrefers_DEFAULT : string = "{}";
 let StarterPrefers_private_latest : string = StarterPrefers_DEFAULT;
 
-// This is its own class as StarterPreferences...
-// - don't need to be loaded on startup
-// - isn't stored with other data
-// - don't require to be encrypted
-// - shouldn't require calls outside of the starter selection
+//这是它自己的类StarterPreferences…
+// -启动时不需要加载
+// -不与其他数据存储在一起
+// -不需要加密
+// -不应该要求启动器选择之外的调用
 export class StarterPrefs {
-  // called on starter selection show once
+  // 调用启动器选择显示一次
   static load(): StarterPreferences {
     return JSON.parse(
       StarterPrefers_private_latest = (localStorage.getItem(`starterPrefs_${loggedInUser?.username}`) || StarterPrefers_DEFAULT)
     );
   }
 
-  // called on starter selection clear, always
+  //调用启动器选择clear, always
   static save(prefs: StarterPreferences): void {
     const pStr : string = JSON.stringify(prefs);
     if (pStr !== StarterPrefers_private_latest) {
-      // something changed, store the update
+      //更改，存储更新
       localStorage.setItem(`starterPrefs_${loggedInUser?.username}`, pStr);
     }
   }
@@ -295,14 +295,20 @@ export class GameData {
   public unlockPity: integer[];
 
   constructor(scene: BattleScene) {
+    // 关联场景
     this.scene = scene;
+    // 加载游戏设置
     this.loadSettings();
+    // 加载手柄配置
     this.loadGamepadSettings();
+    // 加载控制器映射
     this.loadMappingConfigs();
     this.trainerId = Utils.randInt(65536);
     this.secretId = Utils.randInt(65536);
     this.starterData = {};
+    // 初始化游戏状态
     this.gameStats = new GameStats();
+    // 游戏模式解锁状态
     this.unlocks = {
       [Unlockables.ENDLESS_MODE]: false,
       [Unlockables.MINI_BLACK_HOLE]: false,
@@ -319,7 +325,9 @@ export class GameData {
     this.eggs = [];
     this.eggPity = [0, 0, 0, 0];
     this.unlockPity = [0, 0, 0, 0];
+    // 初始化图鉴信息
     this.initDexData();
+    // 初始化玩家图鉴信息
     this.initStarterData();
   }
 
@@ -652,6 +660,7 @@ export class GameData {
   }
 
   /**
+   * 加载控制器的映射配置
    * Loads the mapping configurations from localStorage and injects them into the input controller.
    *
    * @returns `true` if the configurations are successfully loaded and injected; `false` if no configurations are found in localStorage.
@@ -721,7 +730,7 @@ export class GameData {
   }
 
   /**
-   * Loads Settings from local storage if available
+   * 载入游戏配置如果存在
    * @returns true if succesful, false if not
    */
   private loadSettings(): boolean {
