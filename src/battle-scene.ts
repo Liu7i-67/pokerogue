@@ -97,11 +97,11 @@ import { MysteryEncounterMode } from "#enums/mystery-encounter-mode";
 import { ExpGainsSpeed } from "#enums/exp-gains-speed";
 import { FRIENDSHIP_GAIN_FROM_BATTLE } from "#app/data/balance/starters";
 
-export const bypassLogin = import.meta.env.VITE_BYPASS_LOGIN === "1";
+export const bypassLogin = true;
 
 const DEBUG_RNG = false;
 
-const OPP_IVS_OVERRIDE_VALIDATED : integer[] = (
+const OPP_IVS_OVERRIDE_VALIDATED: integer[] = (
   Array.isArray(Overrides.OPP_IVS_OVERRIDE) ?
     Overrides.OPP_IVS_OVERRIDE :
     new Array(6).fill(Overrides.OPP_IVS_OVERRIDE)
@@ -113,18 +113,18 @@ const expSpriteKeys: string[] = [];
 
 export let starterColors: StarterColors;
 interface StarterColors {
-    [key: string]: [string, string]
+  [key: string]: [string, string]
 }
 
 export interface PokeballCounts {
-    [pb: string]: integer;
+  [pb: string]: integer;
 }
 
 export type AnySound = Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.NoAudioSound;
 
 export interface InfoToggle {
-    toggleInfo(force?: boolean): void;
-    isActive(): boolean;
+  toggleInfo(force?: boolean): void;
+  isActive(): boolean;
 }
 
 export default class BattleScene extends SceneBase {
@@ -337,7 +337,7 @@ export default class BattleScene extends SceneBase {
     if (variant) {
       atlasPath = atlasPath.replace("variant/", "");
     }
-    this.load.atlas(key, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.png`,  `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.json`);
+    this.load.atlas(key, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.png`, `images/pokemon/${variant ? "variant/" : ""}${experimental ? "exp/" : ""}${atlasPath}.json`);
   }
 
   async preload() {
@@ -1402,7 +1402,7 @@ export default class BattleScene extends SceneBase {
         }
         return 0;
       case Species.GIMMIGHOUL:
-      // Chest form can only be found in Mysterious Chest Encounter, if this is a game mode with MEs
+        // Chest form can only be found in Mysterious Chest Encounter, if this is a game mode with MEs
         if (this.gameMode.hasMysteryEncounters) {
           return 1; // Wandering form
         } else {
@@ -1631,7 +1631,7 @@ export default class BattleScene extends SceneBase {
     const isBoss = !(this.currentBattle.waveIndex % 10);
     const biomeString: string = getBiomeName(this.arena.biomeType);
     this.fieldUI.moveAbove(this.biomeWaveText, this.luckText);
-    this.biomeWaveText.setText( biomeString + " - " + this.currentBattle.waveIndex.toString());
+    this.biomeWaveText.setText(biomeString + " - " + this.currentBattle.waveIndex.toString());
     this.biomeWaveText.setColor(!isBoss ? "#ffffff" : "#f89890");
     this.biomeWaveText.setShadowColor(!isBoss ? "#636363" : "#984038");
     this.biomeWaveText.setVisible(true);
@@ -1937,8 +1937,8 @@ export default class BattleScene extends SceneBase {
         case "heal":
         case "evolution":
         case "evolution_fanfare":
-        // These sounds are loaded in as BGM, but played as sound effects
-        // When these sounds are updated in updateVolume(), they are treated as BGM however because they are placed in the BGM Cache through being called by playSoundWithoutBGM()
+          // These sounds are loaded in as BGM, but played as sound effects
+          // When these sounds are updated in updateVolume(), they are treated as BGM however because they are placed in the BGM Cache through being called by playSoundWithoutBGM()
           config["volume"] *= (this.masterVolume * this.bgmVolume);
           break;
         case "battle_anims":
@@ -1950,7 +1950,7 @@ export default class BattleScene extends SceneBase {
           }
           break;
         case "ui":
-        //As of, right now this applies to the "select", "menu_open", "error" sound effects
+          //As of, right now this applies to the "select", "menu_open", "error" sound effects
           config["volume"] *= (this.masterVolume * this.uiVolume);
           break;
         case "se":
@@ -2572,7 +2572,7 @@ export default class BattleScene extends SceneBase {
         const newItemModifier = itemModifier.clone() as PokemonHeldItemModifier;
         newItemModifier.pokemonId = target.id;
         const matchingModifier = target.scene.findModifier(m => m instanceof PokemonHeldItemModifier
-                    && (m as PokemonHeldItemModifier).matchType(itemModifier) && m.pokemonId === target.id, target.isPlayer()) as PokemonHeldItemModifier;
+          && (m as PokemonHeldItemModifier).matchType(itemModifier) && m.pokemonId === target.id, target.isPlayer()) as PokemonHeldItemModifier;
         let removeOld = true;
         if (matchingModifier) {
           const maxStackCount = matchingModifier.getMaxStackCount(target.scene);

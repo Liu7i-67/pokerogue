@@ -32,7 +32,7 @@ const timedEvents: TimedEvent[] = [
     shinyMultiplier: 2,
     friendshipMultiplier: 2,
     startDate: new Date(Date.UTC(2024, 9, 27, 0)),
-    endDate: new Date(Date.UTC(2024, 10, 4, 0)),
+    endDate: new Date(Date.UTC(2024, 10, 27, 0)),
     bannerKey: "halloween2024-event-",
     scale: 0.21,
     availableLangs: [ "en", "de", "it", "fr", "ja", "ko", "es", "pt-BR", "zh-CN" ]
@@ -40,12 +40,12 @@ const timedEvents: TimedEvent[] = [
 ];
 
 export class TimedEventManager {
-  constructor() {}
+  constructor() { }
 
   isActive(event: TimedEvent) {
     return (
       event.startDate < new Date() &&
-        new Date() < event.endDate
+      new Date() < event.endDate
     );
   }
 
@@ -185,8 +185,8 @@ export class TimedEventDisplay extends Phaser.GameObjects.Container {
     // Get time components
     const days = diff / 8.64e7 | 0;
     const hours = diff % 8.64e7 / 3.6e6 | 0;
-    const mins  = diff % 3.6e6 / 6e4 | 0;
-    const secs  = Math.round(diff % 6e4 / 1e3);
+    const mins = diff % 3.6e6 / 6e4 | 0;
+    const secs = Math.round(diff % 6e4 / 1e3);
 
     // Return formatted string
     return "Event Ends in : " + z(days) + "d " + z(hours) + "h " + z(mins) + "m " + z(secs) + "s";
