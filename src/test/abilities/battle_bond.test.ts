@@ -1,19 +1,19 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
-import GameManager from "#test/utils/gameManager";
-import { getMovePosition } from "#test/utils/gameManagerUtils";
-import * as Overrides from "#app/overrides";
-import { Moves } from "#enums/moves";
+import { allMoves, MultiHitAttr, MultiHitType } from "#app/data/move";
+import { Status } from "#app/data/status-effect";
 import { Abilities } from "#enums/abilities";
+import { Moves } from "#enums/moves";
 import { Species } from "#enums/species";
-import { Status, StatusEffect } from "#app/data/status-effect.js";
-import { TurnEndPhase } from "#app/phases.js";
-import { QuietFormChangePhase } from "#app/form-change-phase.js";
+import { StatusEffect } from "#enums/status-effect";
+import GameManager from "#test/utils/gameManager";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-const TIMEOUT = 20 * 1000;
 
 describe("Abilities - BATTLE BOND", () => {
   let phaserGame: Phaser.Game;
   let game: GameManager;
+
+  const baseForm = 1;
+  const ashForm = 2;
 
   beforeAll(() => {
     phaserGame = new Phaser.Game({
@@ -27,41 +27,68 @@ describe("Abilities - BATTLE BOND", () => {
 
   beforeEach(() => {
     game = new GameManager(phaserGame);
-    const moveToUse = Moves.SPLASH;
-    vi.spyOn(Overrides, "SINGLE_BATTLE_OVERRIDE", "get").mockReturnValue(true);
-    vi.spyOn(Overrides, "ABILITY_OVERRIDE", "get").mockReturnValue(Abilities.BATTLE_BOND);
-    vi.spyOn(Overrides, "MOVESET_OVERRIDE", "get").mockReturnValue([moveToUse]);
-    vi.spyOn(Overrides, "OPP_MOVESET_OVERRIDE", "get").mockReturnValue([Moves.TACKLE, Moves.TACKLE, Moves.TACKLE, Moves.TACKLE]);
+    game.override.battleType("single")
+      .startingWave(4) // Leads to arena reset on Wave 5 trainer battle
+      .ability(Abilities.BATTLE_BOND)
+      .starterForms({ [Species.GRENINJA]: ashForm, })
+      .moveset([ Moves.SPLASH, Moves.WATER_SHURIKEN ])
+      .enemySpecies(Species.BULBASAUR)
+      .enemyMoveset(Moves.SPLASH)
+      .startingLevel(100) // Avoid levelling up
+      .enemyLevel(1000); // Avoid opponent dying before `doKillOpponents()`
   });
 
-  test(
-    "check if fainted pokemon switches to base form on arena reset",
-    async () => {
-      const baseForm = 1,
-        ashForm = 2;
-      vi.spyOn(Overrides, "STARTING_WAVE_OVERRIDE", "get").mockReturnValue(4);
-      vi.spyOn(Overrides, "STARTER_FORM_OVERRIDES", "get").mockReturnValue({
-        [Species.GRENINJA]: ashForm,
-      });
+  it("check if fainted pokemon switches to base form on arena reset", async () => {
+    await game.classicMode.startBattle([ Species.MAGIKARP, Species.GRENINJA ]);
 
-      await game.startBattle([Species.MAGIKARP, Species.GRENINJA]);
+    const greninja = game.scene.getPlayerParty()[1];
+    expect(greninja.formIndex).toBe(ashForm);
 
-      const greninja = game.scene.getParty().find((p) => p.species.speciesId === Species.GRENINJA);
-      expect(greninja).not.toBe(undefined);
-      expect(greninja.formIndex).toBe(ashForm);
+    greninja.hp = 0;
+    greninja.status = new Status(StatusEffect.FAINT);
+    expect(greninja.isFainted()).toBe(true);
 
-      greninja.hp = 0;
-      greninja.status = new Status(StatusEffect.FAINT);
-      expect(greninja.isFainted()).toBe(true);
+    game.move.select(Moves.SPLASH);
+    await game.doKillOpponents();
+    await game.phaseInterceptor.to("TurnEndPhase");
+    game.doSelectModifier();
+    await game.phaseInterceptor.to("QuietFormChangePhase");
 
-      game.doAttack(getMovePosition(game.scene, 0, Moves.SPLASH));
-      await game.doKillOpponents();
-      await game.phaseInterceptor.to(TurnEndPhase);
-      game.doSelectModifier();
-      await game.phaseInterceptor.to(QuietFormChangePhase);
+    expect(greninja.formIndex).toBe(baseForm);
+  });
 
-      expect(greninja.formIndex).toBe(baseForm);
-    },
-    TIMEOUT
-  );
+  it("should not keep buffing Water Shuriken after Greninja switches to base form", async () => {
+    await game.classicMode.startBattle([ Species.GRENINJA ]);
+
+    const waterShuriken = allMoves[Moves.WATER_SHURIKEN];
+    vi.spyOn(waterShuriken, "calculateBattlePower");
+
+    let actualMultiHitType: MultiHitType | null = null;
+    const multiHitAttr = waterShuriken.getAttrs(MultiHitAttr)[0];
+    vi.spyOn(multiHitAttr, "getHitCount").mockImplementation(() => {
+      actualMultiHitType = multiHitAttr.getMultiHitType();
+      return 3;
+    });
+
+    // Wave 4: Use Water Shuriken in Ash form
+    let expectedBattlePower = 20;
+    let expectedMultiHitType = MultiHitType._3;
+
+    game.move.select(Moves.WATER_SHURIKEN);
+    await game.phaseInterceptor.to("BerryPhase", false);
+    expect(waterShuriken.calculateBattlePower).toHaveLastReturnedWith(expectedBattlePower);
+    expect(actualMultiHitType).toBe(expectedMultiHitType);
+
+    await game.doKillOpponents();
+    await game.toNextWave();
+
+    // Wave 5: Use Water Shuriken in base form
+    expectedBattlePower = 15;
+    expectedMultiHitType = MultiHitType._2_TO_5;
+
+    game.move.select(Moves.WATER_SHURIKEN);
+    await game.phaseInterceptor.to("BerryPhase", false);
+    expect(waterShuriken.calculateBattlePower).toHaveLastReturnedWith(expectedBattlePower);
+    expect(actualMultiHitType).toBe(expectedMultiHitType);
+  });
 });

@@ -1,10 +1,8 @@
 import Pokemon from "../field/pokemon";
 import Move from "./move";
-import { Type } from "./type";
-import * as Utils from "../utils";
-import { IncrementMovePriorityAbAttr, applyAbAttrs } from "./ability";
+import { Type } from "#enums/type";
 import { ProtectAttr } from "./move";
-import { BattlerIndex } from "#app/battle.js";
+import { BattlerIndex } from "#app/battle";
 import i18next from "i18next";
 
 export enum TerrainType {
@@ -34,21 +32,21 @@ export class Terrain {
 
   getAttackTypeMultiplier(attackType: Type): number {
     switch (this.terrainType) {
-    case TerrainType.ELECTRIC:
-      if (attackType === Type.ELECTRIC) {
-        return 1.3;
-      }
-      break;
-    case TerrainType.GRASSY:
-      if (attackType === Type.GRASS) {
-        return 1.3;
-      }
-      break;
-    case TerrainType.PSYCHIC:
-      if (attackType === Type.PSYCHIC) {
-        return 1.3;
-      }
-      break;
+      case TerrainType.ELECTRIC:
+        if (attackType === Type.ELECTRIC) {
+          return 1.3;
+        }
+        break;
+      case TerrainType.GRASSY:
+        if (attackType === Type.GRASS) {
+          return 1.3;
+        }
+        break;
+      case TerrainType.PSYCHIC:
+        if (attackType === Type.PSYCHIC) {
+          return 1.3;
+        }
+        break;
     }
 
     return 1;
@@ -56,12 +54,11 @@ export class Terrain {
 
   isMoveTerrainCancelled(user: Pokemon, targets: BattlerIndex[], move: Move): boolean {
     switch (this.terrainType) {
-    case TerrainType.PSYCHIC:
-      if (!move.hasAttr(ProtectAttr)) {
-        const priority = new Utils.IntegerHolder(move.priority);
-        applyAbAttrs(IncrementMovePriorityAbAttr, user, null, move, priority);
-        return priority.value > 0 && user.getOpponents().filter(o => targets.includes(o.getBattlerIndex())).length > 0;
-      }
+      case TerrainType.PSYCHIC:
+        if (!move.hasAttr(ProtectAttr)) {
+          // Cancels move if the move has positive priority and targets a Pokemon grounded on the Psychic Terrain
+          return move.getPriority(user) > 0 && user.getOpponents().some(o => targets.includes(o.getBattlerIndex()) && o.isGrounded());
+        }
     }
 
     return false;
@@ -70,14 +67,14 @@ export class Terrain {
 
 export function getTerrainName(terrainType: TerrainType): string {
   switch (terrainType) {
-  case TerrainType.MISTY:
-    return i18next.t("terrain:misty");
-  case TerrainType.ELECTRIC:
-    return i18next.t("terrain:electric");
-  case TerrainType.GRASSY:
-    return i18next.t("terrain:grassy");
-  case TerrainType.PSYCHIC:
-    return i18next.t("terrain:psychic");
+    case TerrainType.MISTY:
+      return i18next.t("terrain:misty");
+    case TerrainType.ELECTRIC:
+      return i18next.t("terrain:electric");
+    case TerrainType.GRASSY:
+      return i18next.t("terrain:grassy");
+    case TerrainType.PSYCHIC:
+      return i18next.t("terrain:psychic");
   }
 
   return "";
@@ -86,14 +83,14 @@ export function getTerrainName(terrainType: TerrainType): string {
 
 export function getTerrainColor(terrainType: TerrainType): [ integer, integer, integer ] {
   switch (terrainType) {
-  case TerrainType.MISTY:
-    return [ 232, 136, 200 ];
-  case TerrainType.ELECTRIC:
-    return [ 248, 248, 120 ];
-  case TerrainType.GRASSY:
-    return [ 120, 200, 80 ];
-  case TerrainType.PSYCHIC:
-    return [ 160, 64, 160 ];
+    case TerrainType.MISTY:
+      return [ 232, 136, 200 ];
+    case TerrainType.ELECTRIC:
+      return [ 248, 248, 120 ];
+    case TerrainType.GRASSY:
+      return [ 120, 200, 80 ];
+    case TerrainType.PSYCHIC:
+      return [ 160, 64, 160 ];
   }
 
   return [ 0, 0, 0 ];

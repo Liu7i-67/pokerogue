@@ -2,19 +2,25 @@ import BattleScene from "../battle-scene";
 import OptionSelectUiHandler from "./settings/option-select-ui-handler";
 import { Mode } from "./ui";
 import * as Utils from "../utils";
-import { TextStyle, addTextObject } from "./text";
-import { getBattleCountSplashMessage, getSplashMessages } from "../data/splash-messages";
+import { TextStyle, addTextObject, getTextStyleOptions } from "./text";
+import { getSplashMessages } from "../data/splash-messages";
 import i18next from "i18next";
-import { TimedEventDisplay } from "#app/timed-event-manager.js";
+import { TimedEventDisplay } from "#app/timed-event-manager";
+import { version } from "../../package.json";
+import { pokerogueApi } from "#app/plugins/api/pokerogue-api";
 
 export default class TitleUiHandler extends OptionSelectUiHandler {
+  /** If the stats can not be retrieved, use this fallback value */
+  private static readonly BATTLES_WON_FALLBACK: number = -99999999;
+
   private titleContainer: Phaser.GameObjects.Container;
   private playerCountLabel: Phaser.GameObjects.Text;
   private splashMessage: string;
   private splashMessageText: Phaser.GameObjects.Text;
   private eventDisplay: TimedEventDisplay;
+  private appVersionText: Phaser.GameObjects.Text;
 
-  private titleStatsTimer: NodeJS.Timeout;
+  private titleStatsTimer: NodeJS.Timeout | null;
 
   constructor(scene: BattleScene, mode: Mode = Mode.TITLE) {
     super(scene, mode);
@@ -40,7 +46,14 @@ export default class TitleUiHandler extends OptionSelectUiHandler {
       this.titleContainer.add(this.eventDisplay);
     }
 
-    this.playerCountLabel = addTextObject(this.scene, (this.scene.game.canvas.width / 6) - 2, (this.scene.game.canvas.height / 6) - 109, `? ${i18next.t("menu:playersOnline")}`, TextStyle.MESSAGE, { fontSize: "54px" });
+    this.playerCountLabel = addTextObject(
+      this.scene,
+      (this.scene.game.canvas.width / 6) - 2,
+      (this.scene.game.canvas.height / 6) - 13 - 576 * getTextStyleOptions(TextStyle.WINDOW, this.scene.uiTheme).scale,
+      `? ${i18next.t("menu:playersOnline")}`,
+      TextStyle.MESSAGE,
+      { fontSize: "54px" }
+    );
     this.playerCountLabel.setOrigin(1, 0);
     this.titleContainer.add(this.playerCountLabel);
 
@@ -58,15 +71,21 @@ export default class TitleUiHandler extends OptionSelectUiHandler {
       loop: -1,
       yoyo: true,
     });
+
+    this.appVersionText = addTextObject(this.scene, logo.x - 60, logo.y + logo.displayHeight + 4, "", TextStyle.MONEY, { fontSize: "54px" });
+    this.appVersionText.setOrigin(0.5, 0.5);
+    this.appVersionText.setAngle(0);
+    this.titleContainer.add(this.appVersionText);
   }
 
   updateTitleStats(): void {
-    Utils.apiFetch("game/titlestats")
-      .then(request => request.json())
+    pokerogueApi.getGameTitleStats()
       .then(stats => {
-        this.playerCountLabel.setText(`${stats.playerCount} ${i18next.t("menu:playersOnline")}`);
-        if (this.splashMessage === getBattleCountSplashMessage()) {
-          this.splashMessageText.setText(getBattleCountSplashMessage().replace("{COUNT}", stats.battleCount.toLocaleString("en-US")));
+        if (stats) {
+          this.playerCountLabel.setText(`${stats.playerCount} ${i18next.t("menu:playersOnline")}`);
+          if (this.splashMessage === "splashMessages:battlesWon") {
+            this.splashMessageText.setText(i18next.t(this.splashMessage, { count: stats.battleCount }));
+          }
         }
       })
       .catch(err => {
@@ -79,11 +98,14 @@ export default class TitleUiHandler extends OptionSelectUiHandler {
 
     if (ret) {
       this.splashMessage = Utils.randItem(getSplashMessages());
-      this.splashMessageText.setText(this.splashMessage.replace("{COUNT}", "?"));
+      this.splashMessageText.setText(i18next.t(this.splashMessage, { count: TitleUiHandler.BATTLES_WON_FALLBACK }));
+
+      this.appVersionText.setText("v" + version);
 
       const ui = this.getUi();
 
       if (this.scene.eventManager.isEventActive()) {
+        this.eventDisplay.setWidth(this.scene.scaledCanvas.width - this.optionSelectBg.width - this.optionSelectBg.x);
         this.eventDisplay.show();
       }
 
@@ -111,7 +133,7 @@ export default class TitleUiHandler extends OptionSelectUiHandler {
 
     this.eventDisplay?.clear();
 
-    clearInterval(this.titleStatsTimer);
+    this.titleStatsTimer && clearInterval(this.titleStatsTimer);
     this.titleStatsTimer = null;
 
     this.scene.tweens.add({

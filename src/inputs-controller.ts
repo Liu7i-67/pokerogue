@@ -6,13 +6,13 @@
  */
 import Phaser from "phaser";
 import * as Utils from "./utils";
-import {deepCopy} from "./utils";
+import { deepCopy } from "./utils";
 import pad_generic from "./configs/inputs/pad_generic";
 import pad_unlicensedSNES from "./configs/inputs/pad_unlicensedSNES";
 import pad_xbox360 from "./configs/inputs/pad_xbox360";
 import pad_dualshock from "./configs/inputs/pad_dualshock";
 import pad_procon from "./configs/inputs/pad_procon";
-import {Mode} from "./ui/ui";
+import { Mode } from "./ui/ui";
 import SettingsGamepadUiHandler from "./ui/settings/settings-gamepad-ui-handler";
 import SettingsKeyboardUiHandler from "./ui/settings/settings-keyboard-ui-handler";
 import cfg_keyboard_qwerty from "./configs/inputs/cfg_keyboard_qwerty";
@@ -22,11 +22,12 @@ import {
   getIconForLatestInput, swap,
 } from "#app/configs/inputs/configHandler";
 import BattleScene from "./battle-scene";
-import {SettingGamepad} from "#app/system/settings/settings-gamepad.js";
-import {SettingKeyboard} from "#app/system/settings/settings-keyboard";
+import { SettingGamepad } from "#app/system/settings/settings-gamepad";
+import { SettingKeyboard } from "#app/system/settings/settings-keyboard";
 import TouchControl from "#app/touch-controls";
 import { Button } from "#enums/buttons";
 import { Device } from "#enums/devices";
+import MoveTouchControlsHandler from "./ui/settings/move-touch-controls-handler";
 
 export interface DeviceMapping {
     [key: string]: number;
@@ -55,21 +56,6 @@ export interface InterfaceConfig {
 }
 
 const repeatInputDelayMillis = 250;
-
-// Phaser.Input.Gamepad.GamepadPlugin#refreshPads
-declare module "phaser" {
-  namespace Input {
-    namespace Gamepad {
-      interface GamepadPlugin {
-        /**
-         * Refreshes the list of connected Gamepads.
-         * This is called automatically when a gamepad is connected or disconnected, and during the update loop.
-         */
-        refreshPads(): void;
-      }
-    }
-  }
-}
 
 /**
  * Manages and handles all input controls for the game, including keyboard and gamepad interactions.
@@ -119,6 +105,7 @@ export class InputsController {
   private inputInterval: NodeJS.Timeout[] = new Array();
   // 触控控件的实例。
   private touchControls: TouchControl;
+  public moveTouchControlsHandler: MoveTouchControlsHandler;
 
   /**
      * Initializes a new instance of the game control system, setting up initial state and configurations.
@@ -169,7 +156,7 @@ export class InputsController {
     });
 
     if (typeof this.scene.input.gamepad !== "undefined") {
-      this.scene.input.gamepad.on("connected", function (thisGamepad) {
+      this.scene.input.gamepad?.on("connected", function (thisGamepad) {
         if (!thisGamepad) {
           return;
         }
@@ -178,25 +165,26 @@ export class InputsController {
         this.onReconnect(thisGamepad);
       }, this);
 
-      this.scene.input.gamepad.on("disconnected", function (thisGamepad) {
+      this.scene.input.gamepad?.on("disconnected", function (thisGamepad) {
         this.onDisconnect(thisGamepad); // when a gamepad is disconnected
       }, this);
 
       // Check to see if the gamepad has already been setup by the browser
-      this.scene.input.gamepad.refreshPads();
-      if (this.scene.input.gamepad.total) {
+      this.scene.input.gamepad?.refreshPads();
+      if (this.scene.input.gamepad?.total) {
         this.refreshGamepads();
         for (const thisGamepad of this.gamepads) {
           this.scene.input.gamepad.emit("connected", thisGamepad);
         }
       }
 
-      this.scene.input.gamepad.on("down", this.gamepadButtonDown, this);
-      this.scene.input.gamepad.on("up", this.gamepadButtonUp, this);
-      this.scene.input.keyboard.on("keydown", this.keyboardKeyDown, this);
-      this.scene.input.keyboard.on("keyup", this.keyboardKeyUp, this);
+      this.scene.input.gamepad?.on("down", this.gamepadButtonDown, this);
+      this.scene.input.gamepad?.on("up", this.gamepadButtonUp, this);
+      this.scene.input.keyboard?.on("keydown", this.keyboardKeyDown, this);
+      this.scene.input.keyboard?.on("keyup", this.keyboardKeyUp, this);
     }
     this.touchControls = new TouchControl(this.scene);
+    this.moveTouchControlsHandler = new MoveTouchControlsHandler(this.touchControls);
   }
 
   /**处理游戏失去焦点时的动作，例如停用按下的键。
@@ -322,7 +310,7 @@ export class InputsController {
         this.setChosenGamepad(gamepadID);
       }
       const config = deepCopy(this.getConfig(gamepadID)) as InterfaceConfig;
-      config.custom = this.configs[gamepadID]?.custom || {...config.default};
+      config.custom = this.configs[gamepadID]?.custom || { ...config.default };
       this.configs[gamepadID] = config;
       this.scene.gameData?.saveMappingConfigs(gamepadID, this.configs[gamepadID]);
     }
@@ -335,9 +323,9 @@ export class InputsController {
      * Initializes or updates configurations for connected keyboards.
      */
   setupKeyboard(): void {
-    for (const layout of ["default"]) {
+    for (const layout of [ "default" ]) {
       const config = deepCopy(this.getConfigKeyboard(layout)) as InterfaceConfig;
-      config.custom = this.configs[layout]?.custom || {...config.default};
+      config.custom = this.configs[layout]?.custom || { ...config.default };
       this.configs[layout] = config;
       this.scene.gameData?.saveMappingConfigs(this.selectedDevice[Device.KEYBOARD], this.configs[layout]);
     }
@@ -354,11 +342,11 @@ export class InputsController {
      */
   refreshGamepads(): void {
     // Sometimes, gamepads are undefined. For some reason.
-    this.gamepads = this.scene.input.gamepad.gamepads.filter(function (el) {
+    this.gamepads = this.scene.input.gamepad?.gamepads.filter(function (el) {
       return el !== null;
-    });
+    }) ?? [];
 
-    for (const [index, thisGamepad] of this.gamepads.entries()) {
+    for (const [ index, thisGamepad ] of this.gamepads.entries()) {
       thisGamepad.index = index; // Overwrite the gamepad index, in case we had undefined gamepads earlier
     }
   }

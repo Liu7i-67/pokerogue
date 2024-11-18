@@ -1,20 +1,21 @@
-import {beforeAll, describe, expect, it} from "vitest";
-import _masterlist from "../../../public/images/pokemon/variant/_masterlist.json";
+import { getAppRootDir } from "#test/sprites/spritesUtils";
 import fs from "fs";
 import path from "path";
-import {getAppRootDir} from "#app/test/sprites/spritesUtils";
+import { beforeAll, describe, expect, it } from "vitest";
+import _masterlist from "../../../public/images/pokemon/variant/_masterlist.json";
 
-const deepCopy = (data) => {
+type PokemonVariantMasterlist = typeof _masterlist;
+
+const deepCopy = (data: any) => {
   return JSON.parse(JSON.stringify(data));
 };
 
-
 describe("check if every variant's sprite are correctly set", () => {
-  let masterlist;
-  let expVariant;
-  let femaleVariant;
-  let backVariant;
-  let rootDir;
+  let masterlist: PokemonVariantMasterlist;
+  let expVariant: PokemonVariantMasterlist["exp"];
+  let femaleVariant: PokemonVariantMasterlist["female"];
+  let backVariant: PokemonVariantMasterlist["back"];
+  let rootDir: string;
 
   beforeAll(() => {
     rootDir = `${getAppRootDir()}${path.sep}public${path.sep}images${path.sep}pokemon${path.sep}variant${path.sep}`;
@@ -22,23 +23,26 @@ describe("check if every variant's sprite are correctly set", () => {
     expVariant = masterlist.exp;
     femaleVariant = masterlist.female;
     backVariant = masterlist.back;
-    delete masterlist.exp;
-    delete masterlist.female;
-    delete masterlist.back;
+    //@ts-ignore
+    delete masterlist.exp; //TODO: resolve ts-ignore
+    //@ts-ignore
+    delete masterlist.female; //TODO: resolve ts-ignore
+    //@ts-ignore
+    delete masterlist.back; //TODO: resolve ts-ignore
   });
 
   it("data should not be undefined", () => {
-    expect(masterlist).not.toBeUndefined();
-    expect(expVariant).not.toBeUndefined();
-    expect(femaleVariant).not.toBeUndefined();
-    expect(backVariant).not.toBeUndefined();
+    expect(masterlist).toBeDefined();
+    expect(expVariant).toBeDefined();
+    expect(femaleVariant).toBeDefined();
+    expect(backVariant).toBeDefined();
   });
 
-  function getMissingMasterlist(mlist, dirpath, excludes = []) {
-    const errors = [];
+  function getMissingMasterlist(mlist: any, dirpath: string, excludes: string[] = []): string[] {
+    const errors: string[] = [];
     const trimmedDirpath = `variant${path.sep}${dirpath.split(rootDir)[1]}`;
     if (fs.existsSync(dirpath)) {
-      const files = fs.readdirSync(dirpath);
+      const files = fs.readdirSync(dirpath).filter((filename) => !/^\..*/.test(filename));
       for (const filename of files) {
         const filePath = `${dirpath}${filename}`;
         const trimmedFilePath = `${trimmedDirpath}${filename}`;
@@ -66,7 +70,7 @@ describe("check if every variant's sprite are correctly set", () => {
                 errors.push(`[${id}] missing key ${id} in masterlist for ${trimmedFilePath}`);
               }
               if (mlist[id][index] === 1 && jsonFileExists) {
-                const raw = fs.readFileSync(urlJsonFile, {encoding: "utf8", flag: "r"});
+                const raw = fs.readFileSync(urlJsonFile, { encoding: "utf8", flag: "r" });
                 const data = JSON.parse(raw);
                 const keys = Object.keys(data);
                 if (!keys.includes(`${index}`)) {
@@ -83,7 +87,7 @@ describe("check if every variant's sprite are correctly set", () => {
         } else if (!mlist.hasOwnProperty(name)) {
           errors.push(`[${name}] - missing key ${name} in masterlist for ${trimmedFilePath}`);
         } else {
-          const raw = fs.readFileSync(filePath, {encoding: "utf8", flag: "r"});
+          const raw = fs.readFileSync(filePath, { encoding: "utf8", flag: "r" });
           const data = JSON.parse(raw);
           for (const key of Object.keys(data)) {
             if (mlist[name][key] !== 1) {
@@ -101,18 +105,18 @@ describe("check if every variant's sprite are correctly set", () => {
     return errors;
   }
 
-  function getMissingFiles(keys, dirPath) {
-    const errors = [];
+  function getMissingFiles(keys: Record<string, any>, dirPath: string): string[] {
+    const errors: string[] = [];
     for (const key of Object.keys(keys)) {
       const row = keys[key];
-      for (const [index, elm] of row.entries()) {
-        let url;
+      for (const [ index, elm ] of row.entries()) {
+        let url: string;
         if (elm === 0) {
           continue;
         } else if (elm === 1) {
           url = `${key}.json`;
           const filePath = `${dirPath}${url}`;
-          const raw = fs.readFileSync(filePath, {encoding: "utf8", flag: "r"});
+          const raw = fs.readFileSync(filePath, { encoding: "utf8", flag: "r" });
           const data = JSON.parse(raw);
           if (!data.hasOwnProperty(index)) {
             errors.push(`index: ${index} - ${filePath}`);
@@ -228,7 +232,7 @@ describe("check if every variant's sprite are correctly set", () => {
   it("look over every file in variant back male and check if present in masterlist", () => {
     const dirPath = `${rootDir}back${path.sep}`;
     const backMaleVariant = deepCopy(backVariant);
-    const errors = getMissingMasterlist(backMaleVariant, dirPath, ["female"]);
+    const errors = getMissingMasterlist(backMaleVariant, dirPath, [ "female" ]);
     if (errors.length) {
       console.log("errors for ", dirPath, errors);
     }
@@ -255,7 +259,7 @@ describe("check if every variant's sprite are correctly set", () => {
 
   it("look over every file in variant exp male and check if present in masterlist", () => {
     const dirPath = `${rootDir}exp${path.sep}`;
-    const errors = getMissingMasterlist(expVariant, dirPath, ["back", "female"]);
+    const errors = getMissingMasterlist(expVariant, dirPath, [ "back", "female" ]);
     if (errors.length) {
       console.log("errors for ", dirPath, errors);
     }
@@ -264,7 +268,7 @@ describe("check if every variant's sprite are correctly set", () => {
 
   it("look over every file in variant root and check if present in masterlist", () => {
     const dirPath = `${rootDir}`;
-    const errors = getMissingMasterlist(masterlist, dirPath, ["back", "female", "exp", "icons"]);
+    const errors = getMissingMasterlist(masterlist, dirPath, [ "back", "female", "exp", "icons" ]);
     if (errors.length) {
       console.log("errors for ", dirPath, errors);
     }

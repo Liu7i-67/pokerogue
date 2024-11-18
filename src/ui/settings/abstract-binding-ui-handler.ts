@@ -1,11 +1,13 @@
 import UiHandler from "../ui-handler";
 import BattleScene from "../../battle-scene";
-import {Mode} from "../ui";
-import {addWindow} from "../ui-theme";
-import {addTextObject, TextStyle} from "../text";
-import {Button} from "#enums/buttons";
-import {NavigationManager} from "#app/ui/settings/navigationMenu";
+import { Mode } from "../ui";
+import { addWindow } from "../ui-theme";
+import { addTextObject, TextStyle } from "../text";
+import { Button } from "#enums/buttons";
+import { NavigationManager } from "#app/ui/settings/navigationMenu";
 import i18next from "i18next";
+
+type CancelFn = (succes?: boolean) => boolean;
 
 /**
  * Abstract class for handling UI elements related to button bindings.
@@ -35,7 +37,7 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
   protected targetButtonIcon: Phaser.GameObjects.Sprite;
 
   // Function to call on cancel or completion of binding.
-  protected cancelFn: (boolean?) => boolean;
+  protected cancelFn: CancelFn | null;
   abstract swapAction(): boolean;
 
   protected timeLeftAutoClose: number = 5;
@@ -50,7 +52,7 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
      * @param scene - The BattleScene instance.
      * @param mode - The UI mode.
      */
-  constructor(scene: BattleScene, mode?: Mode) {
+  constructor(scene: BattleScene, mode: Mode | null = null) {
     super(scene, mode);
   }
 
@@ -86,7 +88,7 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
 
     this.timerText = addTextObject(this.scene, 0, 0, "(5)", TextStyle.WINDOW);
     this.timerText.setOrigin(0, 0);
-    this.timerText.setPositionRelative(this.unlockText, (this.unlockText.width/6) + 5, 0);
+    this.timerText.setPositionRelative(this.unlockText, (this.unlockText.width / 6) + 5, 0);
     this.optionSelectContainer.add(this.timerText);
 
     this.optionSelectBg = addWindow(this.scene, (this.scene.game.canvas.width / 6) - this.getWindowWidth(), -(this.scene.game.canvas.height / 6) + this.getWindowHeight() + 28, this.getWindowWidth(), this.getWindowHeight());
@@ -107,7 +109,7 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
       if (this.timeLeftAutoClose >= 0) {
         this.manageAutoCloseTimer();
       } else {
-        this.cancelFn();
+        this.cancelFn && this.cancelFn();
       }
     }, 1000);
   }
@@ -163,27 +165,27 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
      */
   processInput(button: Button): boolean {
     if (this.buttonPressed === null) {
-      return;
+      return false; // TODO: is false correct as default? (previously was `undefined`)
     }
     const ui = this.getUi();
     let success = false;
     switch (button) {
-    case Button.LEFT:
-    case Button.RIGHT:
+      case Button.LEFT:
+      case Button.RIGHT:
       // Toggle between action and cancel options.
-      const cursor = this.cursor ? 0 : 1;
-      success = this.setCursor(cursor);
-      break;
-    case Button.ACTION:
+        const cursor = this.cursor ? 0 : 1;
+        success = this.setCursor(cursor);
+        break;
+      case Button.ACTION:
       // Process actions based on current cursor position.
-      if (this.cursor === 0) {
-        this.cancelFn();
-      } else {
-        success = this.swapAction();
-        NavigationManager.getInstance().updateIcons();
-        this.cancelFn(success);
-      }
-      break;
+        if (this.cursor === 0) {
+          this.cancelFn && this.cancelFn();
+        } else {
+          success = this.swapAction();
+          NavigationManager.getInstance().updateIcons();
+          this.cancelFn && this.cancelFn(success);
+        }
+        break;
     }
 
     // Plays a select sound effect if an action was successfully processed.
@@ -242,7 +244,7 @@ export default abstract class AbstractBindingUiHandler extends UiHandler {
      * @param assignedButtonIcon - The icon of the button that is assigned.
      * @param type - The type of button press.
      */
-  onInputDown(buttonIcon: string, assignedButtonIcon: string, type: string): void {
+  onInputDown(buttonIcon: string, assignedButtonIcon: string | null, type: string): void {
     clearTimeout(this.countdownTimer);
     this.timerText.setText("");
     this.newButtonIcon.setTexture(type);

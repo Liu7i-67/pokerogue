@@ -3,8 +3,9 @@ import BattleScene from "../battle-scene";
 import * as Utils from "../utils";
 import { TextStyle, addTextObject } from "./text";
 import { WindowVariant, addWindow } from "./ui-theme";
+import { pokerogueApi } from "#app/plugins/api/pokerogue-api";
 
-interface RankingEntry {
+export interface RankingEntry {
   rank: integer,
   username: string,
   score: integer,
@@ -12,7 +13,7 @@ interface RankingEntry {
 }
 
 // Don't forget to update translations when adding a new category
-enum ScoreboardCategory {
+export enum ScoreboardCategory {
   DAILY,
   WEEKLY
 }
@@ -59,14 +60,14 @@ export class DailyRunScoreboard extends Phaser.GameObjects.Container {
   }
 
   setup() {
-    const titleWindow = addWindow(this.scene, 0, 0, 114, 18, false, false, null, null, WindowVariant.THIN);
+    const titleWindow = addWindow(this.scene, 0, 0, 114, 18, false, false, undefined, undefined, WindowVariant.THIN);
     this.add(titleWindow);
 
     this.titleLabel = addTextObject(this.scene, titleWindow.displayWidth / 2, titleWindow.displayHeight / 2, i18next.t("menu:loading"), TextStyle.WINDOW, { fontSize: "64px" });
     this.titleLabel.setOrigin(0.5, 0.5);
     this.add(this.titleLabel);
 
-    const window = addWindow(this.scene, 0, 17, 114, 118, false, false, null, null, WindowVariant.THIN);
+    const window = addWindow(this.scene, 0, 17, 114, 118, false, false, undefined, undefined, WindowVariant.THIN);
     this.add(window);
 
     this.rankingsContainer = this.scene.add.container(6, 21);
@@ -142,13 +143,13 @@ export class DailyRunScoreboard extends Phaser.GameObjects.Container {
       entryContainer.add(scoreLabel);
 
       switch (this.category) {
-      case ScoreboardCategory.DAILY:
-        const waveLabel = addTextObject(this.scene, 68, 0, wave, TextStyle.WINDOW, { fontSize: "54px" });
-        entryContainer.add(waveLabel);
-        break;
-      case ScoreboardCategory.WEEKLY:
-        scoreLabel.x -= 16;
-        break;
+        case ScoreboardCategory.DAILY:
+          const waveLabel = addTextObject(this.scene, 68, 0, wave, TextStyle.WINDOW, { fontSize: "54px" });
+          entryContainer.add(waveLabel);
+          break;
+        case ScoreboardCategory.WEEKLY:
+          scoreLabel.x -= 16;
+          break;
       }
 
       return entryContainer;
@@ -191,18 +192,17 @@ export class DailyRunScoreboard extends Phaser.GameObjects.Container {
     }
 
     Utils.executeIf(category !== this.category || this.pageCount === undefined,
-      () => Utils.apiFetch(`daily/rankingpagecount?category=${category}`).then(response => response.json()).then(count => this.pageCount = count)
+      () =>  pokerogueApi.daily.getRankingsPageCount({ category }).then(count => this.pageCount = count)
     ).then(() => {
-      Utils.apiFetch(`daily/rankings?category=${category}&page=${page}`)
-        .then(response => response.json())
-        .then(jsonResponse => {
+      pokerogueApi.daily.getRankings({ category, page })
+        .then(rankings => {
           this.page = page;
           this.category = category;
           this.titleLabel.setText(`${i18next.t(`menu:${ScoreboardCategory[category].toLowerCase()}Rankings`)}`);
           this.pageNumberLabel.setText(page.toString());
-          if (jsonResponse) {
+          if (rankings) {
             this.loadingLabel.setVisible(false);
-            this.updateRankings(jsonResponse);
+            this.updateRankings(rankings);
           } else {
             this.loadingLabel.setText(i18next.t("menu:noRankings"));
           }

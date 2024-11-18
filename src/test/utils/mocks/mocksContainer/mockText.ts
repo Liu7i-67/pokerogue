@@ -1,22 +1,29 @@
 import UI from "#app/ui/ui";
+import { MockGameObject } from "../mockGameObject";
 
-export default class MockText {
+export default class MockText implements MockGameObject {
   private phaserText;
   private wordWrapWidth;
   private splitRegExp;
   private scene;
   private textureManager;
-  public list = [];
+  public list: MockGameObject[] = [];
   public style;
+  public text = "";
+  public name: string;
+  public color?: string;
 
   constructor(textureManager, x, y, content, styleOptions) {
     this.scene = textureManager.scene;
     this.textureManager = textureManager;
     this.style = {};
-    // Phaser.GameObjects.TextStyle.prototype.setStyle = () => null;
+    // Phaser.GameObjects.TextStyle.prototype.setStyle = () => this;
     // Phaser.GameObjects.Text.prototype.updateText = () => null;
     // Phaser.Textures.TextureManager.prototype.addCanvas = () => {};
     UI.prototype.showText = this.showText;
+    UI.prototype.showDialogue = this.showDialogue;
+    this.text = "";
+    this.phaserText = "";
     // super(scene, x, y);
     // this.phaserText = new Phaser.GameObjects.Text(scene, x, y, content, styleOptions);
   }
@@ -72,8 +79,22 @@ export default class MockText {
     return result;
   }
 
-  showText(text, delay, callback, callbackDelay, prompt, promptDelay) {
+  showText(
+    text: string,
+    delay?: integer | null,
+    callback?: Function | null,
+    callbackDelay?: integer | null,
+    prompt?: boolean | null,
+    promptDelay?: integer | null
+  ) {
     this.scene.messageWrapper.showText(text, delay, callback, callbackDelay, prompt, promptDelay);
+    if (callback) {
+      callback();
+    }
+  }
+
+  showDialogue(keyOrText: string, name: string | undefined, delay: integer | null = 0, callback: Function, callbackDelay?: integer, promptDelay?: integer) {
+    this.scene.messageWrapper.showDialogue(keyOrText, name, delay, callback, callbackDelay, promptDelay);
     if (callback) {
       callback();
     }
@@ -101,16 +122,11 @@ export default class MockText {
     // return this.phaserText.once(event, callback, source);
   }
 
-  off(event, callback, obj) {
-  }
+  off(event, callback, obj) {}
 
-  removedFromScene() {
+  removedFromScene() {}
 
-  }
-
-  addToDisplayList() {
-
-  }
+  addToDisplayList() {}
 
   setStroke(color, thickness) {
     // Sets the stroke color and thickness.
@@ -146,11 +162,12 @@ export default class MockText {
    * @param z The z position of this Game Object. Default 0.
    * @param w The w position of this Game Object. Default 0.
    */
-  setPosition(x?: number, y?: number, z?: number, w?: number) { }
+  setPosition(x?: number, y?: number, z?: number, w?: number) {}
 
   setText(text) {
     // Sets the text this Game Object will display.
-    // return this.phaserText.setText(text);
+    // return this.phaserText.setText\(text);
+    this.text = text;
   }
 
   setAngle(angle) {
@@ -185,10 +202,11 @@ export default class MockText {
     };
   }
 
-  setColor(color) {
-    // Sets the tint of this Game Object.
-    // return this.phaserText.setColor(color);
+  setColor(color: string) {
+    this.color = color;
   }
+
+  setInteractive = () => null;
 
   setShadowColor(color) {
     // Sets the shadow color.
@@ -214,8 +232,8 @@ export default class MockText {
     // return this.phaserText.setAlpha(alpha);
   }
 
-  setName(name) {
-    // return this.phaserText.setName(name);
+  setName(name: string) {
+    this.name = name;
   }
 
   setAlign(align) {
@@ -238,6 +256,14 @@ export default class MockText {
       x: 0,
       y: 0,
     };
+  }
+
+  disableInteractive() {
+    // Disables interaction with this Game Object.
+  }
+
+  clearTint() {
+    // Clears tint on this Game Object.
   }
 
   add(obj) {
@@ -274,4 +300,6 @@ export default class MockText {
   getAll() {
     return this.list;
   }
+
+  on(_event: string | symbol, _fn: Function, _context?: any) {}
 }

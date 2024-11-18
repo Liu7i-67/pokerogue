@@ -1,11 +1,12 @@
-import { CommandPhase } from "../phases";
 import BattleScene from "../battle-scene";
 import { addTextObject, TextStyle } from "./text";
 import PartyUiHandler, { PartyUiMode } from "./party-ui-handler";
 import { Mode } from "./ui";
 import UiHandler from "./ui-handler";
 import i18next from "i18next";
-import {Button} from "#enums/buttons";
+import { Button } from "#enums/buttons";
+import { getPokemonNameWithAffix } from "#app/messages";
+import { CommandPhase } from "#app/phases/command-phase";
 
 export enum Command {
   FIGHT = 0,
@@ -16,7 +17,7 @@ export enum Command {
 
 export default class CommandUiHandler extends UiHandler {
   private commandsContainer: Phaser.GameObjects.Container;
-  private cursorObj: Phaser.GameObjects.Image;
+  private cursorObj: Phaser.GameObjects.Image | null;
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
@@ -66,8 +67,12 @@ export default class CommandUiHandler extends UiHandler {
     messageHandler.commandWindow.setVisible(true);
     messageHandler.movesWindowContainer.setVisible(false);
     messageHandler.message.setWordWrapWidth(1110);
-    messageHandler.showText(i18next.t("commandUiHandler:actionMessage", {pokemonName: commandPhase.getPokemon().name}), 0);
-    this.setCursor(this.getCursor());
+    messageHandler.showText(i18next.t("commandUiHandler:actionMessage", { pokemonName: getPokemonNameWithAffix(commandPhase.getPokemon()) }), 0);
+    if (this.getCursor() === Command.POKEMON) {
+      this.setCursor(Command.FIGHT);
+    } else {
+      this.setCursor(this.getCursor());
+    }
 
     return true;
   }
@@ -84,54 +89,51 @@ export default class CommandUiHandler extends UiHandler {
       if (button === Button.ACTION) {
         switch (cursor) {
         // Fight
-        case 0:
-          if ((this.scene.getCurrentPhase() as CommandPhase).checkFightOverride()) {
-            return true;
-          }
-          ui.setMode(Mode.FIGHT, (this.scene.getCurrentPhase() as CommandPhase).getFieldIndex());
-          success = true;
-          break;
+          case Command.FIGHT:
+            ui.setMode(Mode.FIGHT, (this.scene.getCurrentPhase() as CommandPhase).getFieldIndex());
+            success = true;
+            break;
           // Ball
-        case 1:
-          ui.setModeWithoutClear(Mode.BALL);
-          success = true;
-          break;
+          case Command.BALL:
+            ui.setModeWithoutClear(Mode.BALL);
+            success = true;
+            break;
           // Pokemon
-        case 2:
-          ui.setMode(Mode.PARTY, PartyUiMode.SWITCH, (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getFieldIndex(), null, PartyUiHandler.FilterNonFainted);
-          success = true;
-          break;
+          case Command.POKEMON:
+            ui.setMode(Mode.PARTY, PartyUiMode.SWITCH, (this.scene.getCurrentPhase() as CommandPhase).getPokemon().getFieldIndex(), null, PartyUiHandler.FilterNonFainted);
+            success = true;
+            break;
           // Run
-        case 3:
-          (this.scene.getCurrentPhase() as CommandPhase).handleCommand(Command.RUN, 0);
-          success = true;
-          break;
+          case Command.RUN:
+            (this.scene.getCurrentPhase() as CommandPhase).handleCommand(Command.RUN, 0);
+            success = true;
+            break;
         }
       } else {
         (this.scene.getCurrentPhase() as CommandPhase).cancel();
       }
     } else {
       switch (button) {
-      case Button.UP:
-        if (cursor >= 2) {
-          success = this.setCursor(cursor - 2);
-        }
-        break;
-      case Button.DOWN:
-        if (cursor < 2) {
-          success = this.setCursor(cursor + 2);
-        }
-        break;
-      case Button.LEFT:
-        if (cursor % 2 === 1) {
-          success = this.setCursor(cursor - 1);
-        }
-        break;
-      case Button.RIGHT:
-        if (cursor % 2 === 0) {
-          success = this.setCursor(cursor + 1);
-        }
-        break;
+        case Button.UP:
+          if (cursor >= 2) {
+            success = this.setCursor(cursor - 2);
+          }
+          break;
+        case Button.DOWN:
+          if (cursor < 2) {
+            success = this.setCursor(cursor + 2);
+          }
+          break;
+        case Button.LEFT:
+          if (cursor % 2 === 1) {
+            success = this.setCursor(cursor - 1);
+          }
+          break;
+        case Button.RIGHT:
+          if (cursor % 2 === 0) {
+            success = this.setCursor(cursor + 1);
+          }
+          break;
       }
     }
 

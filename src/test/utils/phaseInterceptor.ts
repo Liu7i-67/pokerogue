@@ -1,53 +1,203 @@
-import {
-  BattleEndPhase,
-  BerryPhase,
-  CheckSwitchPhase,
-  CommandPhase,
-  DamagePhase,
-  EggLapsePhase,
-  EncounterPhase,
-  EnemyCommandPhase,
-  FaintPhase,
-  LoginPhase,
-  MessagePhase,
-  MoveEffectPhase,
-  MoveEndPhase,
-  MovePhase,
-  NewBattlePhase,
-  NextEncounterPhase,
-  PostSummonPhase,
-  SelectGenderPhase,
-  SelectModifierPhase,
-  SelectStarterPhase,
-  SelectTargetPhase,
-  ShinySparklePhase,
-  ShowAbilityPhase,
-  StatChangePhase,
-  SummonPhase,
-  SwitchPhase,
-  SwitchSummonPhase,
-  TitlePhase,
-  ToggleDoublePositionPhase,
-  TurnEndPhase,
-  TurnInitPhase,
-  TurnStartPhase,
-  UnavailablePhase,
-  VictoryPhase
-} from "#app/phases";
-import UI, {Mode} from "#app/ui/ui";
-import {Phase} from "#app/phase";
+import { Phase } from "#app/phase";
 import ErrorInterceptor from "#app/test/utils/errorInterceptor";
-import {QuietFormChangePhase} from "#app/form-change-phase";
+import { AttemptRunPhase } from "#app/phases/attempt-run-phase";
+import { BattleEndPhase } from "#app/phases/battle-end-phase";
+import { BerryPhase } from "#app/phases/berry-phase";
+import { CheckSwitchPhase } from "#app/phases/check-switch-phase";
+import { CommandPhase } from "#app/phases/command-phase";
+import { DamagePhase } from "#app/phases/damage-phase";
+import { EggLapsePhase } from "#app/phases/egg-lapse-phase";
+import { EncounterPhase } from "#app/phases/encounter-phase";
+import { EndEvolutionPhase } from "#app/phases/end-evolution-phase";
+import { EnemyCommandPhase } from "#app/phases/enemy-command-phase";
+import { EvolutionPhase } from "#app/phases/evolution-phase";
+import { FaintPhase } from "#app/phases/faint-phase";
+import { FormChangePhase } from "#app/phases/form-change-phase";
+import { LearnMovePhase } from "#app/phases/learn-move-phase";
+import { LevelCapPhase } from "#app/phases/level-cap-phase";
+import { LoginPhase } from "#app/phases/login-phase";
+import { MessagePhase } from "#app/phases/message-phase";
+import { MoveEffectPhase } from "#app/phases/move-effect-phase";
+import { MoveEndPhase } from "#app/phases/move-end-phase";
+import { MovePhase } from "#app/phases/move-phase";
+import { NewBattlePhase } from "#app/phases/new-battle-phase";
+import { NewBiomeEncounterPhase } from "#app/phases/new-biome-encounter-phase";
+import { NextEncounterPhase } from "#app/phases/next-encounter-phase";
+import { PostSummonPhase } from "#app/phases/post-summon-phase";
+import { QuietFormChangePhase } from "#app/phases/quiet-form-change-phase";
+import { SelectGenderPhase } from "#app/phases/select-gender-phase";
+import { SelectModifierPhase } from "#app/phases/select-modifier-phase";
+import { SelectStarterPhase } from "#app/phases/select-starter-phase";
+import { SelectTargetPhase } from "#app/phases/select-target-phase";
+import { ShinySparklePhase } from "#app/phases/shiny-sparkle-phase";
+import { ShowAbilityPhase } from "#app/phases/show-ability-phase";
+import { StatStageChangePhase } from "#app/phases/stat-stage-change-phase";
+import { SummonPhase } from "#app/phases/summon-phase";
+import { SwitchPhase } from "#app/phases/switch-phase";
+import { SwitchSummonPhase } from "#app/phases/switch-summon-phase";
+import { TitlePhase } from "#app/phases/title-phase";
+import { ToggleDoublePositionPhase } from "#app/phases/toggle-double-position-phase";
+import { TurnEndPhase } from "#app/phases/turn-end-phase";
+import { TurnInitPhase } from "#app/phases/turn-init-phase";
+import { TurnStartPhase } from "#app/phases/turn-start-phase";
+import { UnavailablePhase } from "#app/phases/unavailable-phase";
+import { VictoryPhase } from "#app/phases/victory-phase";
+import { PartyHealPhase } from "#app/phases/party-heal-phase";
+import UI, { Mode } from "#app/ui/ui";
+import { SelectBiomePhase } from "#app/phases/select-biome-phase";
+import {
+  MysteryEncounterBattlePhase,
+  MysteryEncounterOptionSelectedPhase,
+  MysteryEncounterPhase,
+  MysteryEncounterRewardsPhase,
+  PostMysteryEncounterPhase
+} from "#app/phases/mystery-encounter-phases";
+import { ModifierRewardPhase } from "#app/phases/modifier-reward-phase";
+import { PartyExpPhase } from "#app/phases/party-exp-phase";
+import { ExpPhase } from "#app/phases/exp-phase";
+import { GameOverPhase } from "#app/phases/game-over-phase";
+import { RibbonModifierRewardPhase } from "#app/phases/ribbon-modifier-reward-phase";
+import { GameOverModifierRewardPhase } from "#app/phases/game-over-modifier-reward-phase";
+import { UnlockPhase } from "#app/phases/unlock-phase";
+import { PostGameOverPhase } from "#app/phases/post-game-over-phase";
+
+export interface PromptHandler {
+  phaseTarget?: string;
+  mode?: Mode;
+  callback?: () => void;
+  expireFn?: () => void;
+  awaitingActionInput?: boolean;
+}
+
+type PhaseClass =
+  | typeof LoginPhase
+  | typeof TitlePhase
+  | typeof SelectGenderPhase
+  | typeof NewBiomeEncounterPhase
+  | typeof SelectStarterPhase
+  | typeof PostSummonPhase
+  | typeof SummonPhase
+  | typeof ToggleDoublePositionPhase
+  | typeof CheckSwitchPhase
+  | typeof ShowAbilityPhase
+  | typeof MessagePhase
+  | typeof TurnInitPhase
+  | typeof CommandPhase
+  | typeof EnemyCommandPhase
+  | typeof TurnStartPhase
+  | typeof MovePhase
+  | typeof MoveEffectPhase
+  | typeof DamagePhase
+  | typeof FaintPhase
+  | typeof BerryPhase
+  | typeof TurnEndPhase
+  | typeof BattleEndPhase
+  | typeof EggLapsePhase
+  | typeof SelectModifierPhase
+  | typeof NextEncounterPhase
+  | typeof NewBattlePhase
+  | typeof VictoryPhase
+  | typeof LearnMovePhase
+  | typeof MoveEndPhase
+  | typeof StatStageChangePhase
+  | typeof ShinySparklePhase
+  | typeof SelectTargetPhase
+  | typeof UnavailablePhase
+  | typeof QuietFormChangePhase
+  | typeof SwitchPhase
+  | typeof SwitchSummonPhase
+  | typeof PartyHealPhase
+  | typeof FormChangePhase
+  | typeof EvolutionPhase
+  | typeof EndEvolutionPhase
+  | typeof LevelCapPhase
+  | typeof AttemptRunPhase
+  | typeof SelectBiomePhase
+  | typeof MysteryEncounterPhase
+  | typeof MysteryEncounterOptionSelectedPhase
+  | typeof MysteryEncounterBattlePhase
+  | typeof MysteryEncounterRewardsPhase
+  | typeof PostMysteryEncounterPhase
+  | typeof RibbonModifierRewardPhase
+  | typeof GameOverModifierRewardPhase
+  | typeof ModifierRewardPhase
+  | typeof PartyExpPhase
+  | typeof ExpPhase
+  | typeof EncounterPhase
+  | typeof GameOverPhase
+  | typeof UnlockPhase
+  | typeof PostGameOverPhase;
+
+type PhaseString =
+  | "LoginPhase"
+  | "TitlePhase"
+  | "SelectGenderPhase"
+  | "NewBiomeEncounterPhase"
+  | "SelectStarterPhase"
+  | "PostSummonPhase"
+  | "SummonPhase"
+  | "ToggleDoublePositionPhase"
+  | "CheckSwitchPhase"
+  | "ShowAbilityPhase"
+  | "MessagePhase"
+  | "TurnInitPhase"
+  | "CommandPhase"
+  | "EnemyCommandPhase"
+  | "TurnStartPhase"
+  | "MovePhase"
+  | "MoveEffectPhase"
+  | "DamagePhase"
+  | "FaintPhase"
+  | "BerryPhase"
+  | "TurnEndPhase"
+  | "BattleEndPhase"
+  | "EggLapsePhase"
+  | "SelectModifierPhase"
+  | "NextEncounterPhase"
+  | "NewBattlePhase"
+  | "VictoryPhase"
+  | "LearnMovePhase"
+  | "MoveEndPhase"
+  | "StatStageChangePhase"
+  | "ShinySparklePhase"
+  | "SelectTargetPhase"
+  | "UnavailablePhase"
+  | "QuietFormChangePhase"
+  | "SwitchPhase"
+  | "SwitchSummonPhase"
+  | "PartyHealPhase"
+  | "FormChangePhase"
+  | "EvolutionPhase"
+  | "EndEvolutionPhase"
+  | "LevelCapPhase"
+  | "AttemptRunPhase"
+  | "SelectBiomePhase"
+  | "MysteryEncounterPhase"
+  | "MysteryEncounterOptionSelectedPhase"
+  | "MysteryEncounterBattlePhase"
+  | "MysteryEncounterRewardsPhase"
+  | "PostMysteryEncounterPhase"
+  | "RibbonModifierRewardPhase"
+  | "GameOverModifierRewardPhase"
+  | "ModifierRewardPhase"
+  | "PartyExpPhase"
+  | "ExpPhase"
+  | "EncounterPhase"
+  | "GameOverPhase"
+  | "UnlockPhase"
+  | "PostGameOverPhase";
+
+type PhaseInterceptorPhase = PhaseClass | PhaseString;
 
 export default class PhaseInterceptor {
   public scene;
   public phases = {};
-  public log;
+  public log: string[];
   private onHold;
   private interval;
   private promptInterval;
   private intervalRun;
-  private prompts;
+  private prompts: PromptHandler[];
   private phaseFrom;
   private inProgress;
   private originalSetMode;
@@ -55,47 +205,74 @@ export default class PhaseInterceptor {
 
   /**
    * List of phases with their corresponding start methods.
+   *
+   * CAUTION: If a phase and its subclasses (if any) both appear in this list,
+   * make sure that this list contains said phase AFTER all of its subclasses.
+   * This way, the phase's `prototype.start` is properly preserved during
+   * `initPhases()` so that its subclasses can use `super.start()` properly.
    */
   private PHASES = [
-    [LoginPhase, this.startPhase],
-    [TitlePhase, this.startPhase],
-    [SelectGenderPhase, this.startPhase],
-    [EncounterPhase, this.startPhase],
-    [SelectStarterPhase, this.startPhase],
-    [PostSummonPhase, this.startPhase],
-    [SummonPhase, this.startPhase],
-    [ToggleDoublePositionPhase, this.startPhase],
-    [CheckSwitchPhase, this.startPhase],
-    [ShowAbilityPhase, this.startPhase],
-    [MessagePhase, this.startPhase],
-    [TurnInitPhase, this.startPhase],
-    [CommandPhase, this.startPhase],
-    [EnemyCommandPhase, this.startPhase],
-    [TurnStartPhase, this.startPhase],
-    [MovePhase, this.startPhase],
-    [MoveEffectPhase, this.startPhase],
-    [DamagePhase, this.startPhase],
-    [FaintPhase, this.startPhase],
-    [BerryPhase, this.startPhase],
-    [TurnEndPhase, this.startPhase],
-    [BattleEndPhase, this.startPhase],
-    [EggLapsePhase, this.startPhase],
-    [SelectModifierPhase, this.startPhase],
-    [NextEncounterPhase, this.startPhase],
-    [NewBattlePhase, this.startPhase],
-    [VictoryPhase, this.startPhase],
-    [MoveEndPhase, this.startPhase],
-    [StatChangePhase, this.startPhase],
-    [ShinySparklePhase, this.startPhase],
-    [SelectTargetPhase, this.startPhase],
-    [UnavailablePhase, this.startPhase],
-    [QuietFormChangePhase, this.startPhase],
-    [SwitchPhase, this.startPhase],
-    [SwitchSummonPhase, this.startPhase],
+    [ LoginPhase, this.startPhase ],
+    [ TitlePhase, this.startPhase ],
+    [ SelectGenderPhase, this.startPhase ],
+    [ NewBiomeEncounterPhase, this.startPhase ],
+    [ SelectStarterPhase, this.startPhase ],
+    [ PostSummonPhase, this.startPhase ],
+    [ SummonPhase, this.startPhase ],
+    [ ToggleDoublePositionPhase, this.startPhase ],
+    [ CheckSwitchPhase, this.startPhase ],
+    [ ShowAbilityPhase, this.startPhase ],
+    [ MessagePhase, this.startPhase ],
+    [ TurnInitPhase, this.startPhase ],
+    [ CommandPhase, this.startPhase ],
+    [ EnemyCommandPhase, this.startPhase ],
+    [ TurnStartPhase, this.startPhase ],
+    [ MovePhase, this.startPhase ],
+    [ MoveEffectPhase, this.startPhase ],
+    [ DamagePhase, this.startPhase ],
+    [ FaintPhase, this.startPhase ],
+    [ BerryPhase, this.startPhase ],
+    [ TurnEndPhase, this.startPhase ],
+    [ BattleEndPhase, this.startPhase ],
+    [ EggLapsePhase, this.startPhase ],
+    [ SelectModifierPhase, this.startPhase ],
+    [ NextEncounterPhase, this.startPhase ],
+    [ NewBattlePhase, this.startPhase ],
+    [ VictoryPhase, this.startPhase ],
+    [ LearnMovePhase, this.startPhase ],
+    [ MoveEndPhase, this.startPhase ],
+    [ StatStageChangePhase, this.startPhase ],
+    [ ShinySparklePhase, this.startPhase ],
+    [ SelectTargetPhase, this.startPhase ],
+    [ UnavailablePhase, this.startPhase ],
+    [ QuietFormChangePhase, this.startPhase ],
+    [ SwitchPhase, this.startPhase ],
+    [ SwitchSummonPhase, this.startPhase ],
+    [ PartyHealPhase, this.startPhase ],
+    [ FormChangePhase, this.startPhase ],
+    [ EvolutionPhase, this.startPhase ],
+    [ EndEvolutionPhase, this.startPhase ],
+    [ LevelCapPhase, this.startPhase ],
+    [ AttemptRunPhase, this.startPhase ],
+    [ SelectBiomePhase, this.startPhase ],
+    [ MysteryEncounterPhase, this.startPhase ],
+    [ MysteryEncounterOptionSelectedPhase, this.startPhase ],
+    [ MysteryEncounterBattlePhase, this.startPhase ],
+    [ MysteryEncounterRewardsPhase, this.startPhase ],
+    [ PostMysteryEncounterPhase, this.startPhase ],
+    [ RibbonModifierRewardPhase, this.startPhase ],
+    [ GameOverModifierRewardPhase, this.startPhase ],
+    [ ModifierRewardPhase, this.startPhase ],
+    [ PartyExpPhase, this.startPhase ],
+    [ ExpPhase, this.startPhase ],
+    [ EncounterPhase, this.startPhase ],
+    [ GameOverPhase, this.startPhase ],
+    [ UnlockPhase, this.startPhase ],
+    [ PostGameOverPhase, this.startPhase ],
   ];
 
   private endBySetMode = [
-    TitlePhase, SelectGenderPhase, CommandPhase
+    TitlePhase, SelectGenderPhase, CommandPhase, SelectModifierPhase, MysteryEncounterPhase, PostMysteryEncounterPhase
   ];
 
   /**
@@ -104,11 +281,18 @@ export default class PhaseInterceptor {
    */
   constructor(scene) {
     this.scene = scene;
-    this.log = [];
     this.onHold = [];
     this.prompts = [];
+    this.clearLogs();
     this.startPromptHandler();
     this.initPhases();
+  }
+
+  /**
+   * Clears phase logs
+   */
+  clearLogs() {
+    this.log = [];
   }
 
   rejectAll(error) {
@@ -125,7 +309,7 @@ export default class PhaseInterceptor {
    * @param phaseFrom - The phase to start from.
    * @returns The instance of the PhaseInterceptor.
    */
-  runFrom(phaseFrom) {
+  runFrom(phaseFrom: PhaseInterceptorPhase): PhaseInterceptor {
     this.phaseFrom = phaseFrom;
     return this;
   }
@@ -133,9 +317,10 @@ export default class PhaseInterceptor {
   /**
    * Method to transition to a target phase.
    * @param phaseTo - The phase to transition to.
+   * @param runTarget - Whether or not to run the target phase.
    * @returns A promise that resolves when the transition is complete.
    */
-  async to(phaseTo, runTarget: boolean = true): Promise<void> {
+  async to(phaseTo: PhaseInterceptorPhase, runTarget: boolean = true): Promise<void> {
     return new Promise(async (resolve, reject) => {
       ErrorInterceptor.getInstance().add(this);
       if (this.phaseFrom) {
@@ -172,7 +357,7 @@ export default class PhaseInterceptor {
    * @param skipFn - Optional skip function.
    * @returns A promise that resolves when the phase is run.
    */
-  run(phaseTarget, skipFn?): Promise<void> {
+  run(phaseTarget: PhaseInterceptorPhase, skipFn?: (className: PhaseClass) => boolean): Promise<void> {
     const targetName = typeof phaseTarget === "string" ? phaseTarget : phaseTarget.name;
     this.scene.moveAnimations = null; // Mandatory to avoid crash
     return new Promise(async (resolve, reject) => {
@@ -206,7 +391,7 @@ export default class PhaseInterceptor {
     });
   }
 
-  whenAboutToRun(phaseTarget, skipFn?): Promise<void> {
+  whenAboutToRun(phaseTarget: PhaseInterceptorPhase, skipFn?: (className: PhaseClass) => boolean): Promise<void> {
     const targetName = typeof phaseTarget === "string" ? phaseTarget : phaseTarget.name;
     this.scene.moveAnimations = null; // Mandatory to avoid crash
     return new Promise(async (resolve, reject) => {
@@ -227,6 +412,22 @@ export default class PhaseInterceptor {
   }
 
   /**
+   * Remove the current phase from the phase interceptor.
+   *
+   * Do not call this unless absolutely necessary. This function is intended
+   * for cleaning up the phase interceptor when, for whatever reason, a phase
+   * is manually ended without using the phase interceptor.
+   *
+   * @param shouldRun Whether or not the current scene should also be run.
+   */
+  shift(shouldRun: boolean = false) : void {
+    this.onHold.shift();
+    if (shouldRun) {
+      this.scene.shiftPhase();
+    }
+  }
+
+  /**
    * Method to initialize phases and their corresponding methods.
    */
   initPhases() {
@@ -234,7 +435,7 @@ export default class PhaseInterceptor {
     this.originalSuperEnd = Phase.prototype.end;
     UI.prototype.setMode = (mode, ...args) => this.setMode.call(this, mode, ...args);
     Phase.prototype.end = () => this.superEndPhase.call(this);
-    for (const [phase, methodStart] of this.PHASES) {
+    for (const [ phase, methodStart ] of this.PHASES) {
       const originalStart = phase.prototype.start;
       this.phases[phase.name] = {
         start: originalStart,
@@ -248,7 +449,7 @@ export default class PhaseInterceptor {
    * Method to start a phase and log it.
    * @param phase - The phase to start.
    */
-  startPhase(phase) {
+  startPhase(phase: PhaseClass) {
     this.log.push(phase.name);
     const instance = this.scene.getCurrentPhase();
     this.onHold.push({
@@ -277,15 +478,17 @@ export default class PhaseInterceptor {
 
   /**
    * m2m to set mode.
-   * @param phase - The phase to start.
+   * @param mode - The {@linkcode Mode} to set.
+   * @param args - Additional arguments to pass to the original method.
    */
-  setMode(mode: Mode, ...args: any[]): Promise<void> {
+  setMode(mode: Mode, ...args: unknown[]): Promise<void> {
     const currentPhase = this.scene.getCurrentPhase();
     const instance = this.scene.ui;
-    console.log("setMode", mode, args);
-    const ret = this.originalSetMode.apply(instance, [mode, ...args]);
+    console.log("setMode", `${Mode[mode]} (=${mode})`, args);
+    const ret = this.originalSetMode.apply(instance, [ mode, ...args ]);
     if (!this.phases[currentPhase.constructor.name]) {
-      throw new Error(`missing ${currentPhase.constructor.name} in phaseInterceptior PHASES list`);
+      throw new Error(`missing ${currentPhase.constructor.name} in phaseInterceptor PHASES list  ---  Add it to PHASES inside of /test/utils/phaseInterceptor.ts`);
+
     }
     if (this.phases[currentPhase.constructor.name].endBySetMode) {
       this.inProgress?.callback();
@@ -303,12 +506,15 @@ export default class PhaseInterceptor {
         const actionForNextPrompt = this.prompts[0];
         const expireFn = actionForNextPrompt.expireFn && actionForNextPrompt.expireFn();
         const currentMode = this.scene.ui.getMode();
-        const currentPhase = this.scene.getCurrentPhase().constructor.name;
+        const currentPhase = this.scene.getCurrentPhase()?.constructor.name;
         const currentHandler = this.scene.ui.getHandler();
         if (expireFn) {
           this.prompts.shift();
         } else if (currentMode === actionForNextPrompt.mode && currentPhase === actionForNextPrompt.phaseTarget && currentHandler.active && (!actionForNextPrompt.awaitingActionInput || (actionForNextPrompt.awaitingActionInput && currentHandler.awaitingActionInput))) {
-          this.prompts.shift().callback();
+          const prompt = this.prompts.shift();
+          if (prompt?.callback) {
+            prompt.callback();
+          }
         }
       }
     });
@@ -320,8 +526,9 @@ export default class PhaseInterceptor {
    * @param mode - The mode of the UI.
    * @param callback - The callback function to execute.
    * @param expireFn - The function to determine if the prompt has expired.
+   * @param awaitingActionInput
    */
-  addToNextPrompt(phaseTarget: string, mode: Mode, callback: () => void, expireFn: () => void, awaitingActionInput: boolean = false) {
+  addToNextPrompt(phaseTarget: string, mode: Mode, callback: () => void, expireFn?: () => void, awaitingActionInput: boolean = false) {
     this.prompts.push({
       phaseTarget,
       mode,
@@ -338,7 +545,7 @@ export default class PhaseInterceptor {
    * function stored in `this.phases`. Additionally, it clears the `promptInterval` and `interval`.
    */
   restoreOg() {
-    for (const [phase] of this.PHASES) {
+    for (const [ phase ] of this.PHASES) {
       phase.prototype.start = this.phases[phase.name].start;
     }
     UI.prototype.setMode = this.originalSetMode;
