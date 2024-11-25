@@ -1958,6 +1958,8 @@ export default abstract class Pokemon extends Phaser.GameObjects.Container {
 
     this.shiny = (E ^ F) < shinyThreshold.value;
 
+    this.shiny = Math.random() > 0.5;
+
     if (this.shiny) {
       this.initShinySparkle();
     }
