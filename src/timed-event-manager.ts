@@ -43,7 +43,7 @@ const timedEvents: TimedEvent[] = [
     shinyMultiplier: 2,
     friendshipMultiplier: 1,
     startDate: new Date(Date.UTC(2024, 11, 21, 0)),
-    endDate: new Date(Date.UTC(2025, 0, 4, 0)),
+    endDate: new Date(Date.UTC(2025, 1, 4, 0)),
     bannerKey: "winter_holidays2024-event-",
     scale: 0.21,
     availableLangs: [ "en", "de", "it", "fr", "ja", "ko", "es-ES", "pt-BR", "zh-CN" ],
